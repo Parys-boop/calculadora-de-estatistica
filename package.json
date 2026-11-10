@@ -1,0 +1,12 @@
+{
+  "name": "calculadora-de-estatistica",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "python -m http.server 8000 --bind 127.0.0.1 --directory dist",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a110e">
+  <meta name="description" content="Calcule a correlação de Pearson e acompanhe a substituição dos valores na fórmula.">
+  <title>Calculadora de Estatística</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./assets/style.css">
+  <script type="module" src="./assets/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-content">
+      <a href="#inicio" class="brand" aria-label="Estatística, início">
+        <span class="brand-mark" aria-hidden="true">Σ</span>
+        Estatística
+      </a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="home" aria-labelledby="home-title">
+      <div class="hero">
+        <div>
+          <h1 id="home-title" tabindex="-1">Calculadora de <span>Estatística</span></h1>
+          <p>Insira suas observações e acompanhe cada etapa do cálculo.</p>
+        </div>
+        <div class="scatter" aria-hidden="true">
+          <span style="--x: 12%; --y: 78%"></span>
+          <span style="--x: 26%; --y: 69%"></span>
+          <span style="--x: 40%; --y: 58%"></span>
+          <span style="--x: 54%; --y: 47%"></span>
+          <span style="--x: 68%; --y: 31%"></span>
+          <span style="--x: 83%; --y: 11%"></span>
+        </div>
+      </div>
+
+      <a class="formula-card" href="#pearson" aria-labelledby="card-title card-action">
+        <div class="card-copy">
+          <h2 id="card-title">Correlação de Pearson</h2>
+          <p>Meça a intensidade e a direção da relação linear entre duas variáveis.</p>
+          <span class="card-action" id="card-action">Abrir calculadora <span aria-hidden="true">↗</span></span>
+        </div>
+        <div class="card-equation" data-symbolic-formula></div>
+      </a>
+    </section>
+
+    <section id="calculator" aria-labelledby="calculator-title" hidden>
+      <div class="calculator-heading">
+        <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
+        <h1 id="calculator-title" tabindex="-1">Correlação de Pearson</h1>
+      </div>
+
+      <section class="panel display-panel" aria-labelledby="display-title">
+        <div class="panel-header">
+          <h2 id="display-title">Visor da fórmula</h2>
+          <p id="preview-note">Aguardando dados</p>
+        </div>
+        <div class="display-body">
+          <div class="symbolic" data-symbolic-formula></div>
+          <dl class="metrics">
+            <div><dt>Pares completos</dt><dd><i>n</i> = <span id="count">0</span></dd></div>
+            <div><dt>Média de X</dt><dd id="mean-x">—</dd></div>
+            <div><dt>Média de Y</dt><dd id="mean-y">—</dd></div>
+          </dl>
+          <div id="substitution" class="substitution" hidden>
+            <h3>Substituição por par</h3>
+            <p id="scroll-hint" class="scroll-hint" hidden>Role a tabela para ver as outras colunas.</p>
+            <div class="substitution-scroll" tabindex="0" role="region" aria-label="Substituição dos valores na fórmula" aria-describedby="scroll-hint">
+              <table class="steps">
+                <thead>
+                  <tr>
+                    <th scope="col">Par</th>
+                    <th scope="col" aria-label="Produto dos desvios">(xᵢ − x̄)(yᵢ − ȳ)</th>
+                    <th scope="col" aria-label="Desvio de X ao quadrado">(xᵢ − x̄)²</th>
+                    <th scope="col" aria-label="Desvio de Y ao quadrado">(yᵢ − ȳ)²</th>
+                  </tr>
+                </thead>
+                <tbody id="steps"></tbody>
+              </table>
+            </div>
+            <h3>Fórmula com as somas</h3>
+            <div id="sums" class="sums"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel data-panel" aria-labelledby="data-title">
+        <div class="panel-header">
+          <h2 id="data-title">Pares de observações</h2>
+          <button type="button" class="text-button" id="clear">Limpar dados</button>
+        </div>
+        <div class="entry-layout">
+          <div class="observations">
+            <p class="entry-hint">Preencha X e Y em cada linha.</p>
+            <div class="observation-scroll">
+              <table class="inputs">
+                <thead>
+                  <tr><th scope="col">Par</th><th scope="col">X</th><th scope="col">Y</th><th scope="col"><span class="sr-only">Ações</span></th></tr>
+                </thead>
+                <tbody id="pairs"></tbody>
+              </table>
+            </div>
+            <button type="button" class="add-button" id="add"><span aria-hidden="true">+</span> Adicionar par</button>
+          </div>
+          <div class="keypad" aria-labelledby="keypad-title">
+            <div class="keypad-header">
+              <h3 id="keypad-title">Teclado</h3>
+              <span id="selected-field">X · par 1</span>
+            </div>
+            <div class="keys">
+              <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" class="operation" data-key="delete" aria-label="Apagar caractere">⌫</button>
+              <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" class="operation" data-key="sign" aria-label="Alterar sinal">±</button>
+              <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" class="operation" data-key="," aria-label="Separador decimal">,</button>
+              <button type="button" data-key="0" class="zero">0</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="calculate-area">
+        <p id="feedback" class="feedback" role="status"></p>
+        <button type="button" id="calculate" class="calculate-button" disabled>Calcular <span aria-hidden="true">→</span></button>
+        <div id="result" class="result" aria-live="polite"></div>
+      </div>
+    </section>
+    <noscript><p class="feedback">Ative o JavaScript para usar a calculadora.</p></noscript>
+  </main>
+
+  <template id="symbolic-formula">
+    <math display="block" aria-label="r é a soma dos produtos dos desvios de X e Y, dividida pela raiz do produto das somas dos desvios quadráticos.">
+      <mi>r</mi><mo>=</mo>
+      <mfrac>
+        <mrow>
+          <mo>∑</mo><mo>[</mo><mo>(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo>)</mo>
+          <mo>(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mover accent="true"><mi>y</mi><mo>¯</mo></mover><mo>)</mo><mo>]</mo>
+        </mrow>
+        <msqrt>
+          <mo>∑</mo><msup><mrow><mo>(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo>)</mo></mrow><mn>2</mn></msup>
+          <mo>×</mo>
+          <mo>∑</mo><msup><mrow><mo>(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mover accent="true"><mi>y</mi><mo>¯</mo></mover><mo>)</mo></mrow><mn>2</mn></msup>
+        </msqrt>
+      </mfrac>
+    </math>
+  </template>
+</body>
+</html>
