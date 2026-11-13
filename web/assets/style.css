@@ -107,17 +107,7 @@ h1, h2, h3, p { margin: 0; }
   transition: border-color .15s ease, background-color .15s ease;
 }
 .formula-card:hover { border-color: #7db16c; background: #15231b; }
-.card-copy h2 { font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.045em; line-height: 1.12; }
-.card-copy p { max-width: 35ch; margin-top: 12px; color: var(--muted); line-height: 1.55; }
-.card-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 22px;
-  color: var(--accent);
-  font-size: .95rem;
-  font-weight: 650;
-}
+.formula-card h2 { font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.045em; line-height: 1.12; }
 .card-equation, .symbolic {
   display: grid;
   min-width: 0;
