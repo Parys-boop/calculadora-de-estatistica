@@ -3,15 +3,8 @@ const scientific = new Intl.NumberFormat("pt-BR", {
   notation: "scientific", maximumSignificantDigits: 16,
 });
 
-const steps = document.querySelector("#steps");
-const substitutionScroll = document.querySelector(".substitution-scroll");
-const scrollHint = document.querySelector("#scroll-hint");
 const formulaDisplay = document.querySelector(".symbolic");
-const resize = new ResizeObserver(() => {
-  scrollHint.hidden = substitutionScroll.scrollWidth <= substitutionScroll.clientWidth;
-});
-resize.observe(substitutionScroll);
-resize.observe(steps.closest("table"));
+const formulaContext = document.querySelector("#formula-context");
 
 export function formatAuxiliary(value) {
   if (value == null) return "—";
@@ -21,112 +14,89 @@ export function formatAuxiliary(value) {
 }
 
 function numberMarkup(text) {
-  if (text == null) return '<mtext aria-label="valor pendente">□</mtext>';
   const [mantissa, exponent] = text.replaceAll("-", "−").split(/[eE]/);
   const number = `<mn>${mantissa}</mn>`;
   if (exponent == null) return number;
   return `${number}<mo>×</mo><msup><mn>10</mn><mn>${exponent}</mn></msup>`;
 }
 
-function deviation(entry, mean) {
-  const observation = numberMarkup(entry.state === "valid" ? entry.text.replace(".", ",") : null);
-  const average = numberMarkup(mean == null ? null : formatAuxiliary(mean));
+function deviation(entry, axis, index, mean) {
+  const observation = entry.state === "valid"
+    ? numberMarkup(entry.text.replace(".", ","))
+    : `<msub><mi>${axis}</mi><mn>${index + 1}</mn></msub>`;
+  let average = `<mover accent="true"><mi>${axis}</mi><mo>¯</mo></mover>`;
+  if (mean != null) {
+    average = numberMarkup(formatAuxiliary(mean));
+    if (mean < 0) average = `<mrow><mo>(</mo>${average}<mo>)</mo></mrow>`;
+  }
   return `<mrow><mo>(</mo>${observation}<mo>−</mo>${average}<mo>)</mo></mrow>`;
 }
 
-export function renderFormula(row, stats, hasData, coefficient) {
-  if (!hasData || !row) {
+function fraction(numerator, sumX, sumY) {
+  return `<mfrac>
+    ${numerator}
+    <msqrt><mrow><mo>(</mo>${sumX}<mo>)</mo><mo>×</mo><mo>(</mo>${sumY}<mo>)</mo></mrow></msqrt>
+  </mfrac>`;
+}
+
+export function renderFormula(rows, stats, coefficient) {
+  const hasData = rows.some(({ x, y }) => x.state !== "blank" || y.state !== "blank");
+  if (!hasData) {
     formulaDisplay.replaceChildren(document.querySelector("#symbolic-formula").content.cloneNode(true));
+    formulaContext.hidden = true;
     return;
   }
 
-  const dx = deviation(row.x, stats?.meanX);
-  const dy = deviation(row.y, stats?.meanY);
-  const r = coefficient == null
-    ? "<mi>r</mi>"
-    : `<mn class="formula-coefficient">${coefficient}</mn>`;
-
-  formulaDisplay.innerHTML = `
-    <math display="block">
-      ${r}<mo>=</mo>
-      <mfrac>
-        <mrow><mo>∑</mo><mo>[</mo>${dx}${dy}<mo>]</mo></mrow>
-        <msqrt>
-          <mo>∑</mo><msup>${dx}<mn>2</mn></msup>
-          <mo>×</mo>
-          <mo>∑</mo><msup>${dy}<mn>2</mn></msup>
-        </msqrt>
-      </mfrac>
-    </math>`;
-}
-
-export function renderSubstitution(rows, stats, count) {
-  const terms = rows.map(({ x, y }) => ({
-    x: deviation(x, stats?.meanX),
-    y: deviation(y, stats?.meanY),
+  const pendingIndex = rows.findIndex(({ x, y }) => x.state !== "valid" || y.state !== "valid");
+  const complete = pendingIndex < 0;
+  const terms = rows.map(({ x, y }, index) => ({
+    x: deviation(x, "x", index, complete ? stats?.meanX : null),
+    y: deviation(y, "y", index, complete ? stats?.meanY : null),
     selected: x.input.dataset.selected === "true" || y.input.dataset.selected === "true",
   }));
-  steps.innerHTML = terms.map(({ x, y }, index) => {
-    return `<tr><th scope="row">${index + 1}</th>
-      <td><math>${x}${y}</math></td>
-      <td><math><msup>${x}<mn>2</mn></msup></math></td>
-      <td><math><msup>${y}<mn>2</mn></msup></math></td></tr>`;
-  }).join("");
+  const sum = values => `<mrow>${values.join("<mo>+</mo>")}</mrow>`;
+  const products = sum(terms.map(({ x, y, selected }) =>
+    `<mrow class="${selected ? "active-formula-term" : ""}">${x}${y}</mrow>`));
+  const squaresX = sum(terms.map(({ x }) => `<msup>${x}<mn>2</mn></msup>`));
+  const squaresY = sum(terms.map(({ y }) => `<msup>${y}<mn>2</mn></msup>`));
+  const left = coefficient == null
+    ? `<mi>r</mi><mo>${complete ? "≈" : "="}</mo>`
+    : `<mn class="formula-coefficient">${coefficient}</mn><mo>≈</mo>`;
+  let totals = "";
+  if (complete && stats && [stats.sumXY, stats.sumXX, stats.sumYY].every(value => value != null)) {
+    totals = `<mo>≈</mo>${fraction(
+      numberMarkup(formatAuxiliary(stats.sumXY)),
+      numberMarkup(formatAuxiliary(stats.sumXX)),
+      numberMarkup(formatAuxiliary(stats.sumYY)),
+    )}`;
+  }
 
-  const addTerms = values => `<mrow>${values.join("<mo>+</mo>")}</mrow>`;
-  const products = addTerms(terms.map(({ x, y, selected }) =>
-    `<mrow class="${selected ? "active-sum-term" : ""}">${x}${y}</mrow>`));
-  const squaresX = addTerms(terms.map(({ x }) => `<msup>${x}<mn>2</mn></msup>`));
-  const squaresY = addTerms(terms.map(({ y }) => `<msup>${y}<mn>2</mn></msup>`));
-  const sum = value => numberMarkup(value == null ? null : formatAuxiliary(value));
-  const pendingIndex = rows.findIndex(({ x, y }) => x.state !== "valid" || y.state !== "valid");
-  let status = "";
-  if (pendingIndex >= 0) {
+  formulaDisplay.innerHTML = `
+    <math id="live-equation" display="block">
+      ${left}${fraction(products, squaresX, squaresY)}${totals}
+    </math>`;
+
+  let context = "";
+  if (!complete) {
     const row = rows[pendingIndex];
     const axis = row.x.state !== "valid" ? "X" : "Y";
     const entry = axis === "X" ? row.x : row.y;
-    status = `${entry.state === "blank" ? "Preencha" : "Revise"} ${axis} do par ${pendingIndex + 1}.`;
-    if (count > 0) {
-      status += ` As somas parciais usam ${count} ${count === 1 ? "par completo" : "pares completos"}.`;
-    } else {
-      status += " As médias e as somas aparecem ao completar um par.";
-    }
-  } else if (count < 2) {
-    status = "Preencha pelo menos dois pares completos para calcular r.";
+    context = `${entry.state === "blank" ? "Preencha" : "Revise"} ${axis} do par ${pendingIndex + 1}. Os símbolos indicam os valores que faltam para completar a fórmula.`;
   }
+  if (formulaDisplay.scrollWidth > formulaDisplay.clientWidth) {
+    context += " Role para os lados para acompanhar toda a expressão.";
+  }
+  formulaContext.hidden = !context;
+  formulaContext.textContent = context.trim();
 
-  document.querySelector("#sums").innerHTML = `
-    <p class="sums-label">Valores substituídos</p>
-    <div class="sums-expression" tabindex="0" role="region" aria-label="Fórmula com todos os valores inseridos">
-      <math display="block">
-        <mi>r</mi><mo>=</mo>
-        <mfrac>
-          ${products}
-          <msqrt><mo>(</mo>${squaresX}<mo>)</mo><mo>×</mo><mo>(</mo>${squaresY}<mo>)</mo></msqrt>
-        </mfrac>
-      </math>
-    </div>
-    <p class="sums-label">${pendingIndex >= 0 ? "Somas parciais" : "Somas calculadas"}</p>
-    <div class="sums-totals">
-      <math display="block">
-        <mi>r</mi><mo>=</mo>
-        <mfrac>
-          <mrow>${sum(stats?.sumXY)}</mrow>
-          <msqrt><mrow>${sum(stats?.sumXX)}</mrow><mo>×</mo><mrow>${sum(stats?.sumYY)}</mrow></msqrt>
-        </mfrac>
-      </math>
-    </div>
-    <p class="sums-status" ${status ? "" : "hidden"}>${status}</p>`;
-
-  const expression = document.querySelector(".sums-expression");
-  const activeTerm = expression.querySelector(".active-sum-term");
-  if (activeTerm) {
-    const termBounds = activeTerm.getBoundingClientRect();
-    const viewportBounds = expression.getBoundingClientRect();
-    if (termBounds.right > viewportBounds.right) {
-      expression.scrollLeft += termBounds.right - viewportBounds.right + 8;
-    } else if (termBounds.left < viewportBounds.left) {
-      expression.scrollLeft += termBounds.left - viewportBounds.left - 8;
+  const target = formulaDisplay.querySelector(".formula-coefficient, .active-formula-term");
+  if (target) {
+    const targetBounds = target.getBoundingClientRect();
+    const viewportBounds = formulaDisplay.getBoundingClientRect();
+    if (targetBounds.right > viewportBounds.right) {
+      formulaDisplay.scrollLeft += targetBounds.right - viewportBounds.right + 8;
+    } else if (targetBounds.left < viewportBounds.left) {
+      formulaDisplay.scrollLeft += targetBounds.left - viewportBounds.left - 8;
     }
   }
 }

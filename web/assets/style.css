@@ -118,7 +118,7 @@ h1, h2, h3, p { margin: 0; }
   font-size: .95rem;
   font-weight: 650;
 }
-.card-equation, .symbolic, .sums {
+.card-equation, .symbolic {
   display: grid;
   min-width: 0;
   overflow-x: auto;
@@ -159,7 +159,9 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .panel-header h2 { font-size: 1.05rem; letter-spacing: -.015em; }
 .panel-header p, .entry-hint { color: var(--muted); font-size: .86rem; line-height: 1.45; }
 .display-body { padding: 15px 21px 20px; }
-.symbolic { min-height: 86px; margin-bottom: 13px; padding: 6px 2px; }
+.symbolic { width: 100%; max-width: 100%; min-height: 86px; margin-bottom: 13px; padding: 10px 2px; scrollbar-color: #557560 var(--well); }
+.symbolic math { padding-bottom: 6px; }
+.active-formula-term { background-color: #28442d; }
 .formula-coefficient { font-weight: 700; }
 .formula-context { margin: -3px 0 13px; color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.4; }
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
@@ -167,43 +169,7 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .metrics dt { color: var(--muted); font-size: .78rem; }
 .metrics dd i { font-family: Georgia, serif; }
 .metrics dd { margin: 3px 0 0; font-size: clamp(.82rem, 3.4vw, 1rem); font-weight: 650; color: var(--accent); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.substitution { margin-top: 18px; }
-.substitution h3 { margin-bottom: 8px; color: var(--muted); font-size: .83rem; font-weight: 650; }
-.scroll-hint { margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
-.substitution-scroll {
-  max-height: 168px;
-  overflow: auto;
-  overscroll-behavior: contain;
-  border: 1px solid #263b2e;
-  border-radius: 8px;
-  background: var(--well);
-  margin-bottom: 14px;
-}
-.substitution-scroll, .observation-scroll { scrollbar-color: #557560 var(--well); }
-.steps { width: 100%; border-spacing: 0; text-align: left; }
-.steps th, .steps td { padding: 7px 11px; white-space: nowrap; }
-.steps thead th { position: sticky; top: 0; background: #17281d; color: var(--muted); font-size: .78rem; font-weight: 600; }
-.steps tbody th { color: var(--muted); font: .8rem Inter, "Segoe UI", sans-serif; }
-.steps tbody td, .steps tbody th { border-top: 1px solid #23362a; }
-.steps math { font-size: 1rem; }
-.sums { display: block; width: 100%; overflow: visible; padding: 14px; background: var(--well); border: 1px solid #263b2e; border-radius: 8px; }
-.sums math { font-size: clamp(1rem, 2.2vw, 1.25rem); }
-.sums-label { color: var(--muted); font-size: .8rem; font-weight: 600; }
-.sums-expression, .sums-totals {
-  display: grid;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  justify-items: safe center;
-  align-items: center;
-  overflow-x: auto;
-  padding: 12px 3px;
-  scrollbar-color: #557560 var(--well);
-}
-.sums-expression { margin-bottom: 12px; border-bottom: 1px solid #263b2e; }
-.sums-expression math { padding-bottom: 6px; }
-.active-sum-term { background-color: #28442d; }
-.sums-status { margin-top: 5px; color: var(--muted); font-size: .82rem; line-height: 1.5; }
+.observation-scroll { scrollbar-color: #557560 var(--well); }
 
 .entry-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .64fr); gap: 20px; padding: 18px 21px 21px; }
 .entry-hint { margin-bottom: 7px; }

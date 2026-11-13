@@ -1,8 +1,8 @@
 # Calculadora de Estatística
 
-Primeira versão para a atividade da faculdade, com a Correlação de Pearson. Insira pares X e Y com o teclado físico ou o teclado da página. O visor mostra a substituição por par, as médias e as somas durante a edição. Clique em **Calcular** para ver o coeficiente com quatro casas decimais.
+Primeira versão para a atividade da faculdade, com a Correlação de Pearson. Insira pares X e Y com o teclado físico ou o teclado da página. O visor substitui os valores diretamente na fórmula de todos os pares e mostra as médias e as somas durante a edição. Clique em **Calcular** para ver o coeficiente com quatro casas decimais no lugar de r.
 
-Linhas vazias e incompletas aparecem com espaços pendentes na substituição. Enquanto houver linhas pendentes, as médias e as somas da prévia consideram os pares completos. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
+Campos vazios ou inválidos conservam os símbolos de suas variáveis na fórmula. As médias da prévia consideram os pares completos. A expressão conserva x̄ e ȳ até todos os pares estarem completos, quando recebe as médias e as somas calculadas em C. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
 
 ## Rodar localmente
 

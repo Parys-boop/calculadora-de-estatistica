@@ -59,32 +59,13 @@
           <p id="preview-note">Aguardando dados</p>
         </div>
         <div class="display-body">
-          <div class="symbolic" data-symbolic-formula tabindex="0" role="region" aria-label="Visor da fórmula com o par selecionado" aria-describedby="formula-context"></div>
+          <div class="symbolic" tabindex="0" role="region" aria-label="Fórmula de Pearson com os valores inseridos" aria-describedby="formula-context"></div>
           <p id="formula-context" class="formula-context" hidden></p>
           <dl class="metrics">
             <div><dt>Pares completos</dt><dd><i>n</i> = <span id="count">0</span></dd></div>
             <div><dt>Média de X</dt><dd id="mean-x">—</dd></div>
             <div><dt>Média de Y</dt><dd id="mean-y">—</dd></div>
           </dl>
-          <div id="substitution" class="substitution" hidden>
-            <h3>Substituição por par</h3>
-            <p id="scroll-hint" class="scroll-hint" hidden>Role a tabela para ver as outras colunas.</p>
-            <div class="substitution-scroll" tabindex="0" role="region" aria-label="Substituição dos valores na fórmula" aria-describedby="scroll-hint">
-              <table class="steps">
-                <thead>
-                  <tr>
-                    <th scope="col">Par</th>
-                    <th scope="col" aria-label="Produto dos desvios">(xᵢ − x̄)(yᵢ − ȳ)</th>
-                    <th scope="col" aria-label="Desvio de X ao quadrado">(xᵢ − x̄)²</th>
-                    <th scope="col" aria-label="Desvio de Y ao quadrado">(yᵢ − ȳ)²</th>
-                  </tr>
-                </thead>
-                <tbody id="steps"></tbody>
-              </table>
-            </div>
-            <h3>Fórmula com as somas</h3>
-            <div id="sums" class="sums"></div>
-          </div>
         </div>
       </section>
 

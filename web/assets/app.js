@@ -1,4 +1,4 @@
-import { formatAuxiliary, renderFormula, renderSubstitution } from "./display.js";
+import { formatAuxiliary, renderFormula } from "./display.js";
 import { loadPearson, PearsonStatus } from "./pearson.js";
 
 const home = document.querySelector("#home");
@@ -54,7 +54,6 @@ function selectField(input) {
   selectedInput.dataset.selected = "true";
   selectedLabel.textContent = `${input.dataset.axis} · par ${input.closest("tr").sectionRowIndex + 1}`;
   updateFormula();
-  if (preview?.hasData) renderSubstitution(preview.rows, preview.stats, preview.count);
 }
 
 function appendRow() {
@@ -105,12 +104,8 @@ function readRows() {
 
 function updateFormula() {
   if (!preview) return;
-  const index = selectedInput.closest("tr").sectionRowIndex;
   const coefficient = result.querySelector("strong")?.textContent;
-  renderFormula(preview.rows[index], preview.stats, preview.hasData, coefficient);
-  const context = document.querySelector("#formula-context");
-  context.hidden = !preview.hasData;
-  context.textContent = `Par ${index + 1} no visor. Os somatórios usam todos os pares completos.`;
+  renderFormula(preview.rows, preview.stats, coefficient);
 }
 
 function updatePreview() {
@@ -134,15 +129,13 @@ function updatePreview() {
   } else if (pairs.length === 0) {
     previewNote.textContent = "Preencha X e Y para ver as médias";
   } else if (pairs.length < rows.length) {
-    previewNote.textContent = "Prévia com os pares completos";
+    previewNote.textContent = "Médias parciais dos pares completos";
   } else {
     previewNote.textContent = "Valores exibidos podem estar arredondados";
   }
 
-  document.querySelector("#substitution").hidden = !hasData;
-  preview = { rows, stats, hasData, count: pairs.length };
+  preview = { rows, stats };
   updateFormula();
-  if (hasData) renderSubstitution(rows, stats, pairs.length);
 }
 
 function dataChanged() {
