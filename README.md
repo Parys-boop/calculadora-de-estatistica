@@ -4,6 +4,17 @@ Primeira versão para a atividade da faculdade, com a Correlação de Pearson. I
 
 Campos vazios ou inválidos conservam os símbolos de suas variáveis na fórmula. As médias da prévia consideram os pares completos. A expressão conserva x̄ e ȳ até todos os pares estarem completos, quando recebe as médias e as somas calculadas em C. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
 
+## Marco aprovado em 12/11/2026
+
+Versão de Correlação de Pearson aprovada pelo usuário e preservada pela tag `v0.1.0-pearson-aprovado`.
+
+- Interface escura em verde, responsiva, com card inicial contendo o título e a fórmula, tabela X/Y, edição de pares e teclados físico e virtual.
+- Visor dinâmico em MathML com os valores substituídos diretamente na expressão de todos os pares. O resultado ocupa o lugar de r após **Calcular** e é invalidado quando os dados mudam.
+- Médias, somas e coeficiente calculados em C com `double`, compilado para WebAssembly pelo Emscripten. Resultado com quatro casas decimais em português brasileiro e validações de campos, séries constantes e limites numéricos.
+- Validação já concluída com 11 testes automatizados e verificações no navegador, incluindo telas de computador e celular. O exemplo da aula resulta em **0,9865**, conferido independentemente com o Python.
+
+Este marco será a referência das próximas alterações. A próxima fórmula dependerá dos requisitos enviados pelo usuário e será adicionada em um novo card, preservando o funcionamento de Pearson.
+
 ## Rodar localmente
 
 Use Node.js 22 ou superior, Python 3 e [Emscripten 4.0.23](https://emscripten.org/docs/getting_started/downloads.html). Em um terminal com `emcc` ativo, na raiz do projeto, execute:
