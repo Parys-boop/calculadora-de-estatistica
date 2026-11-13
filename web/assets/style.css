@@ -160,6 +160,8 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .panel-header p, .entry-hint { color: var(--muted); font-size: .86rem; line-height: 1.45; }
 .display-body { padding: 15px 21px 20px; }
 .symbolic { min-height: 86px; margin-bottom: 13px; padding: 6px 2px; }
+.formula-coefficient { font-weight: 700; }
+.formula-context { margin: -3px 0 13px; color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.4; }
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
 .metrics div { min-width: 0; padding: 10px 12px; background: var(--well); border: 1px solid #263b2e; border-radius: 8px; }
 .metrics dt { color: var(--muted); font-size: .78rem; }

@@ -1,4 +1,4 @@
-import { formatAuxiliary, renderSubstitution } from "./display.js";
+import { formatAuxiliary, renderFormula, renderSubstitution } from "./display.js";
 import { loadPearson, PearsonStatus } from "./pearson.js";
 
 const home = document.querySelector("#home");
@@ -25,6 +25,7 @@ const statusMessages = {
 
 let pearson;
 let selectedInput;
+let preview;
 
 const formula = document.querySelector("#symbolic-formula");
 for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
@@ -52,6 +53,7 @@ function selectField(input) {
   selectedInput = input;
   selectedInput.dataset.selected = "true";
   selectedLabel.textContent = `${input.dataset.axis} · par ${input.closest("tr").sectionRowIndex + 1}`;
+  updateFormula();
 }
 
 function appendRow() {
@@ -100,6 +102,16 @@ function readRows() {
   return { rows, pairs };
 }
 
+function updateFormula() {
+  if (!preview) return;
+  const index = selectedInput.closest("tr").sectionRowIndex;
+  const coefficient = result.querySelector("strong")?.textContent;
+  renderFormula(preview.rows[index], preview.stats, preview.hasData, coefficient);
+  const context = document.querySelector("#formula-context");
+  context.hidden = !preview.hasData;
+  context.textContent = `Par ${index + 1} no visor. Os somatórios usam todos os pares completos.`;
+}
+
 function updatePreview() {
   const { rows, pairs } = readRows();
   const hasData = rows.some(({ x, y }) => x.state !== "blank" || y.state !== "blank");
@@ -127,6 +139,8 @@ function updatePreview() {
   }
 
   document.querySelector("#substitution").hidden = !hasData;
+  preview = { rows, stats, hasData };
+  updateFormula();
   if (hasData) renderSubstitution(rows, stats, pairs.length);
 }
 
@@ -176,6 +190,7 @@ function applyKey(key) {
 function calculate() {
   const { rows, pairs } = readRows();
   result.replaceChildren();
+  updateFormula();
   const invalidFields = rows.flatMap(({ x, y }) => [x, y]).filter(entry => entry.state !== "valid");
   if (invalidFields.length) {
     for (const { input } of invalidFields) input.setAttribute("aria-invalid", "true");
@@ -213,7 +228,8 @@ function calculate() {
   const value = document.createElement("strong");
   value.textContent = formatted;
   result.append("Resultado de r =", value);
-  result.scrollIntoView({ block: "nearest" });
+  updateFormula();
+  document.querySelector(".symbolic").scrollIntoView({ block: "center" });
 }
 
 pairTable.addEventListener("focusin", event => {

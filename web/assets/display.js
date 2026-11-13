@@ -6,6 +6,7 @@ const scientific = new Intl.NumberFormat("pt-BR", {
 const steps = document.querySelector("#steps");
 const substitutionScroll = document.querySelector(".substitution-scroll");
 const scrollHint = document.querySelector("#scroll-hint");
+const formulaDisplay = document.querySelector(".symbolic");
 const resize = new ResizeObserver(() => {
   scrollHint.hidden = substitutionScroll.scrollWidth <= substitutionScroll.clientWidth;
 });
@@ -31,6 +32,32 @@ function deviation(entry, mean) {
   const observation = numberMarkup(entry.state === "valid" ? entry.text.replace(".", ",") : null);
   const average = numberMarkup(mean == null ? null : formatAuxiliary(mean));
   return `<mrow><mo>(</mo>${observation}<mo>−</mo>${average}<mo>)</mo></mrow>`;
+}
+
+export function renderFormula(row, stats, hasData, coefficient) {
+  if (!hasData || !row) {
+    formulaDisplay.replaceChildren(document.querySelector("#symbolic-formula").content.cloneNode(true));
+    return;
+  }
+
+  const dx = deviation(row.x, stats?.meanX);
+  const dy = deviation(row.y, stats?.meanY);
+  const r = coefficient == null
+    ? "<mi>r</mi>"
+    : `<mn class="formula-coefficient">${coefficient}</mn>`;
+
+  formulaDisplay.innerHTML = `
+    <math display="block">
+      ${r}<mo>=</mo>
+      <mfrac>
+        <mrow><mo>∑</mo><mo>[</mo>${dx}${dy}<mo>]</mo></mrow>
+        <msqrt>
+          <mo>∑</mo><msup>${dx}<mn>2</mn></msup>
+          <mo>×</mo>
+          <mo>∑</mo><msup>${dy}<mn>2</mn></msup>
+        </msqrt>
+      </mfrac>
+    </math>`;
 }
 
 export function renderSubstitution(rows, stats, count) {
