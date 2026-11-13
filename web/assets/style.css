@@ -56,7 +56,7 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: minmax(0, 1fr) minmax(160px, 32%);
   align-items: center;
   gap: 32px;
-  padding: clamp(44px, 8vw, 104px) 0 38px;
+  padding: clamp(38px, 6vw, 76px) 0 32px;
 }
 .hero h1 {
   font-size: clamp(2.75rem, 6.8vw, 5.25rem);
@@ -96,18 +96,30 @@ h1, h2, h3, p { margin: 0; }
 }
 .formula-card {
   display: grid;
-  grid-template-columns: minmax(0, .9fr) minmax(0, 1fr);
-  gap: 30px;
+  grid-template-columns: minmax(0, 1fr);
+  width: min(100%, 620px);
+  gap: 24px;
   align-items: center;
-  margin-bottom: 48px;
-  padding: clamp(24px, 4vw, 42px);
-  border: 1px solid #375243;
-  border-radius: 22px;
-  background: var(--surface);
-  transition: border-color .15s ease, background-color .15s ease;
+  margin: 8px auto 60px;
+  padding: 28px;
+  border: 1px solid #476348;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #192c1e, #101c15 65%);
+  box-shadow: 0 18px 48px #00000030, inset 0 1px 0 #d3ffc910;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
-.formula-card:hover { border-color: #7db16c; background: #15231b; }
-.formula-card h2 { font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.045em; line-height: 1.12; }
+.formula-card:hover {
+  border-color: #9bd27c;
+  box-shadow: 0 22px 56px #00000040, 0 0 30px #9bdd7410, inset 0 1px 0 #d3ffc91a;
+  transform: translateY(-3px);
+}
+.formula-card h2 {
+  text-align: center;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -.035em;
+  line-height: 1.2;
+}
 .card-equation, .symbolic {
   display: grid;
   min-width: 0;
@@ -117,14 +129,15 @@ h1, h2, h3, p { margin: 0; }
   color: var(--accent);
 }
 .card-equation {
-  min-height: 132px;
-  padding: 14px 8px;
-  border: 1px solid #23392b;
-  border-radius: 13px;
-  background: var(--well);
+  min-height: 172px;
+  padding: 24px 18px;
+  border: 1px solid #304c36;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 30%, #19341c66, transparent 75%), #09130d;
+  box-shadow: inset 0 2px 14px #00000020;
 }
 math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
-.card-equation math { font-size: clamp(1rem, 2vw, 1.45rem); }
+.card-equation math { font-size: clamp(.9rem, 4.5vw, 1.8rem); }
 
 #calculator { padding-bottom: 48px; }
 .calculator-heading { padding: 30px 0 24px; }
@@ -271,9 +284,8 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 @media (max-width: 700px) {
   .hero { grid-template-columns: minmax(0, 1fr); gap: 0; padding-bottom: 27px; }
   .scatter { display: none; }
-  .formula-card { grid-template-columns: minmax(0, 1fr); gap: 22px; }
-  .card-equation { min-height: 98px; }
-  .card-equation math { font-size: clamp(1rem, 4vw, 1.35rem); }
+  .formula-card { gap: 20px; padding: 24px; margin-top: 4px; }
+  .card-equation { min-height: 148px; padding: 20px 14px; }
   .entry-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 }
 
@@ -284,9 +296,10 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
   .metrics div { padding: 7px 6px; }
   .metrics dt { font-size: .72rem; }
   .hero h1 { font-size: clamp(2.2rem, 10vw, 2.75rem); }
-  .formula-card { padding: 19px; }
+  .formula-card { padding: 20px; border-radius: 20px; }
+  .card-equation { min-height: 136px; padding: 18px 12px; border-radius: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .formula-card { transition: none; }
+  .formula-card { transition: none; transform: none; }
 }
