@@ -37,8 +37,12 @@
         </div>
       </div>
 
-      <a class="formula-card" href="#pearson" aria-labelledby="card-title">
-        <h2 id="card-title">Correlação de Pearson</h2>
+      <a class="formula-card" href="#pearson" aria-labelledby="card-title card-action">
+        <div class="card-copy">
+          <h2 id="card-title">Correlação de Pearson</h2>
+          <p>Meça a intensidade e a direção da relação linear entre duas variáveis.</p>
+          <span class="card-action" id="card-action">Abrir calculadora <span aria-hidden="true">↗</span></span>
+        </div>
         <div class="card-equation" data-symbolic-formula></div>
       </a>
     </section>
@@ -55,10 +59,7 @@
           <p id="preview-note">Aguardando dados</p>
         </div>
         <div class="display-body">
-          <p id="formula-scroll-hint" class="scroll-hint" hidden>Role para os lados para acompanhar toda a fórmula.</p>
-          <div id="live-formula" class="formula-viewport" tabindex="0" role="region" aria-label="Fórmula com os valores inseridos" aria-describedby="formula-scroll-hint">
-            <div id="formula-content"></div>
-          </div>
+          <div class="symbolic" data-symbolic-formula></div>
           <dl class="metrics">
             <div><dt>Pares completos</dt><dd><i>n</i> = <span id="count">0</span></dd></div>
             <div><dt>Média de X</dt><dd id="mean-x">—</dd></div>
@@ -80,6 +81,8 @@
                 <tbody id="steps"></tbody>
               </table>
             </div>
+            <h3>Fórmula com as somas</h3>
+            <div id="sums" class="sums"></div>
           </div>
         </div>
       </section>
@@ -102,19 +105,16 @@
             </div>
             <button type="button" class="add-button" id="add"><span aria-hidden="true">+</span> Adicionar par</button>
           </div>
-          <div class="keyboard-area">
-            <div id="result" class="result" role="status" aria-live="polite" aria-atomic="true"></div>
-            <div class="keypad" aria-labelledby="keypad-title">
-              <div class="keypad-header">
-                <h3 id="keypad-title">Teclado</h3>
-                <span id="selected-field">X · par 1</span>
-              </div>
-              <div class="keys">
-                <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" class="operation" data-key="delete" aria-label="Apagar caractere">⌫</button>
-                <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" class="operation" data-key="sign" aria-label="Alterar sinal">±</button>
-                <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" class="operation" data-key="," aria-label="Separador decimal">,</button>
-                <button type="button" data-key="0" class="zero">0</button>
-              </div>
+          <div class="keypad" aria-labelledby="keypad-title">
+            <div class="keypad-header">
+              <h3 id="keypad-title">Teclado</h3>
+              <span id="selected-field">X · par 1</span>
+            </div>
+            <div class="keys">
+              <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" class="operation" data-key="delete" aria-label="Apagar caractere">⌫</button>
+              <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" class="operation" data-key="sign" aria-label="Alterar sinal">±</button>
+              <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" class="operation" data-key="," aria-label="Separador decimal">,</button>
+              <button type="button" data-key="0" class="zero">0</button>
             </div>
           </div>
         </div>
@@ -123,6 +123,7 @@
       <div class="calculate-area">
         <p id="feedback" class="feedback" role="status"></p>
         <button type="button" id="calculate" class="calculate-button" disabled>Calcular <span aria-hidden="true">→</span></button>
+        <div id="result" class="result" aria-live="polite"></div>
       </div>
     </section>
     <noscript><p class="feedback">Ative o JavaScript para usar a calculadora.</p></noscript>
