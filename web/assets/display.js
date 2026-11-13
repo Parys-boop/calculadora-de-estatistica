@@ -6,11 +6,18 @@ const scientific = new Intl.NumberFormat("pt-BR", {
 const steps = document.querySelector("#steps");
 const substitutionScroll = document.querySelector(".substitution-scroll");
 const scrollHint = document.querySelector("#scroll-hint");
+const liveFormula = document.querySelector("#live-formula");
+const formulaContent = document.querySelector("#formula-content");
+const formulaScrollHint = document.querySelector("#formula-scroll-hint");
 const resize = new ResizeObserver(() => {
   scrollHint.hidden = substitutionScroll.scrollWidth <= substitutionScroll.clientWidth;
+  formulaScrollHint.hidden = liveFormula.scrollWidth <= liveFormula.clientWidth
+    && liveFormula.scrollHeight <= liveFormula.clientHeight;
 });
 resize.observe(substitutionScroll);
 resize.observe(steps.closest("table"));
+resize.observe(liveFormula);
+resize.observe(formulaContent);
 
 export function formatAuxiliary(value) {
   if (value == null) return "—";
@@ -33,7 +40,36 @@ function deviation(entry, mean) {
   return `<mrow><mo>(</mo>${observation}<mo>−</mo>${average}<mo>)</mo></mrow>`;
 }
 
-export function renderSubstitution(rows, stats, count) {
+export function renderFormula(rows, stats) {
+  const hasData = rows.some(({ x, y }) => x.state !== "blank" || y.state !== "blank");
+  if (!hasData) {
+    formulaContent.replaceChildren(document.querySelector("#symbolic-formula").content.cloneNode(true));
+    return;
+  }
+
+  const deviations = rows.map(({ x, y }) => ({
+    x: deviation(x, stats?.meanX),
+    y: deviation(y, stats?.meanY),
+  }));
+  const sum = terms => `<mtable columnalign="left">${terms.map((term, index) =>
+    `<mtr><mtd><mrow>${index > 0 ? "<mo>+</mo>" : ""}${term}</mrow></mtd></mtr>`
+  ).join("")}</mtable>`;
+  const products = sum(deviations.map(({ x, y }) => x + y));
+  const squaresX = sum(deviations.map(({ x }) => `<msup>${x}<mn>2</mn></msup>`));
+  const squaresY = sum(deviations.map(({ y }) => `<msup>${y}<mn>2</mn></msup>`));
+  formulaContent.innerHTML = `
+    <math display="block">
+      <mi>r</mi><mo>=</mo>
+      <mfrac>
+        ${products}
+        <msqrt>
+          <mrow><mo>(</mo>${squaresX}<mo>)</mo><mo>×</mo><mo>(</mo>${squaresY}<mo>)</mo></mrow>
+        </msqrt>
+      </mfrac>
+    </math>`;
+}
+
+export function renderSubstitution(rows, stats) {
   steps.innerHTML = rows.map(({ x, y }, index) => {
     const dx = deviation(x, stats?.meanX);
     const dy = deviation(y, stats?.meanY);
@@ -42,14 +78,4 @@ export function renderSubstitution(rows, stats, count) {
       <td><math><msup>${dx}<mn>2</mn></msup></math></td>
       <td><math><msup>${dy}<mn>2</mn></msup></math></td></tr>`;
   }).join("");
-
-  const sum = value => numberMarkup(count < 2 || value == null ? null : formatAuxiliary(value));
-  document.querySelector("#sums").innerHTML = `
-    <math display="block">
-      <mi>r</mi><mo>=</mo>
-      <mfrac>
-        <mrow>${sum(stats?.sumXY)}</mrow>
-        <msqrt><mrow>${sum(stats?.sumXX)}</mrow><mo>×</mo><mrow>${sum(stats?.sumYY)}</mrow></msqrt>
-      </mfrac>
-    </math>`;
 }

@@ -1,4 +1,4 @@
-import { formatAuxiliary, renderSubstitution } from "./display.js";
+import { formatAuxiliary, renderFormula, renderSubstitution } from "./display.js";
 import { loadPearson, PearsonStatus } from "./pearson.js";
 
 const home = document.querySelector("#home");
@@ -127,7 +127,8 @@ function updatePreview() {
   }
 
   document.querySelector("#substitution").hidden = !hasData;
-  if (hasData) renderSubstitution(rows, stats, pairs.length);
+  renderFormula(rows, stats);
+  if (hasData) renderSubstitution(rows, stats);
 }
 
 function dataChanged() {
@@ -212,7 +213,13 @@ function calculate() {
   const formatted = finalNumber.format(roundedZero ? 0 : stats.coefficient).replace("-", "−");
   const value = document.createElement("strong");
   value.textContent = formatted;
-  result.append("Resultado de r =", value);
+  const label = document.createElement("span");
+  label.className = "result-label";
+  label.textContent = "Correlação de Pearson";
+  const equation = document.createElement("div");
+  equation.className = "result-value";
+  equation.append("r = ", value);
+  result.append(label, equation);
   result.scrollIntoView({ block: "nearest" });
 }
 
