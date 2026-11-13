@@ -54,6 +54,7 @@ function selectField(input) {
   selectedInput.dataset.selected = "true";
   selectedLabel.textContent = `${input.dataset.axis} · par ${input.closest("tr").sectionRowIndex + 1}`;
   updateFormula();
+  if (preview?.hasData) renderSubstitution(preview.rows, preview.stats, preview.count);
 }
 
 function appendRow() {
@@ -139,7 +140,7 @@ function updatePreview() {
   }
 
   document.querySelector("#substitution").hidden = !hasData;
-  preview = { rows, stats, hasData };
+  preview = { rows, stats, hasData, count: pairs.length };
   updateFormula();
   if (hasData) renderSubstitution(rows, stats, pairs.length);
 }

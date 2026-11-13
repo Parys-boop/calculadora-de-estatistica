@@ -61,22 +61,72 @@ export function renderFormula(row, stats, hasData, coefficient) {
 }
 
 export function renderSubstitution(rows, stats, count) {
-  steps.innerHTML = rows.map(({ x, y }, index) => {
-    const dx = deviation(x, stats?.meanX);
-    const dy = deviation(y, stats?.meanY);
+  const terms = rows.map(({ x, y }) => ({
+    x: deviation(x, stats?.meanX),
+    y: deviation(y, stats?.meanY),
+    selected: x.input.dataset.selected === "true" || y.input.dataset.selected === "true",
+  }));
+  steps.innerHTML = terms.map(({ x, y }, index) => {
     return `<tr><th scope="row">${index + 1}</th>
-      <td><math>${dx}${dy}</math></td>
-      <td><math><msup>${dx}<mn>2</mn></msup></math></td>
-      <td><math><msup>${dy}<mn>2</mn></msup></math></td></tr>`;
+      <td><math>${x}${y}</math></td>
+      <td><math><msup>${x}<mn>2</mn></msup></math></td>
+      <td><math><msup>${y}<mn>2</mn></msup></math></td></tr>`;
   }).join("");
 
-  const sum = value => numberMarkup(count < 2 || value == null ? null : formatAuxiliary(value));
+  const addTerms = values => `<mrow>${values.join("<mo>+</mo>")}</mrow>`;
+  const products = addTerms(terms.map(({ x, y, selected }) =>
+    `<mrow class="${selected ? "active-sum-term" : ""}">${x}${y}</mrow>`));
+  const squaresX = addTerms(terms.map(({ x }) => `<msup>${x}<mn>2</mn></msup>`));
+  const squaresY = addTerms(terms.map(({ y }) => `<msup>${y}<mn>2</mn></msup>`));
+  const sum = value => numberMarkup(value == null ? null : formatAuxiliary(value));
+  const pendingIndex = rows.findIndex(({ x, y }) => x.state !== "valid" || y.state !== "valid");
+  let status = "";
+  if (pendingIndex >= 0) {
+    const row = rows[pendingIndex];
+    const axis = row.x.state !== "valid" ? "X" : "Y";
+    const entry = axis === "X" ? row.x : row.y;
+    status = `${entry.state === "blank" ? "Preencha" : "Revise"} ${axis} do par ${pendingIndex + 1}.`;
+    if (count > 0) {
+      status += ` As somas parciais usam ${count} ${count === 1 ? "par completo" : "pares completos"}.`;
+    } else {
+      status += " As médias e as somas aparecem ao completar um par.";
+    }
+  } else if (count < 2) {
+    status = "Preencha pelo menos dois pares completos para calcular r.";
+  }
+
   document.querySelector("#sums").innerHTML = `
-    <math display="block">
-      <mi>r</mi><mo>=</mo>
-      <mfrac>
-        <mrow>${sum(stats?.sumXY)}</mrow>
-        <msqrt><mrow>${sum(stats?.sumXX)}</mrow><mo>×</mo><mrow>${sum(stats?.sumYY)}</mrow></msqrt>
-      </mfrac>
-    </math>`;
+    <p class="sums-label">Valores substituídos</p>
+    <div class="sums-expression" tabindex="0" role="region" aria-label="Fórmula com todos os valores inseridos">
+      <math display="block">
+        <mi>r</mi><mo>=</mo>
+        <mfrac>
+          ${products}
+          <msqrt><mo>(</mo>${squaresX}<mo>)</mo><mo>×</mo><mo>(</mo>${squaresY}<mo>)</mo></msqrt>
+        </mfrac>
+      </math>
+    </div>
+    <p class="sums-label">${pendingIndex >= 0 ? "Somas parciais" : "Somas calculadas"}</p>
+    <div class="sums-totals">
+      <math display="block">
+        <mi>r</mi><mo>=</mo>
+        <mfrac>
+          <mrow>${sum(stats?.sumXY)}</mrow>
+          <msqrt><mrow>${sum(stats?.sumXX)}</mrow><mo>×</mo><mrow>${sum(stats?.sumYY)}</mrow></msqrt>
+        </mfrac>
+      </math>
+    </div>
+    <p class="sums-status" ${status ? "" : "hidden"}>${status}</p>`;
+
+  const expression = document.querySelector(".sums-expression");
+  const activeTerm = expression.querySelector(".active-sum-term");
+  if (activeTerm) {
+    const termBounds = activeTerm.getBoundingClientRect();
+    const viewportBounds = expression.getBoundingClientRect();
+    if (termBounds.right > viewportBounds.right) {
+      expression.scrollLeft += termBounds.right - viewportBounds.right + 8;
+    } else if (termBounds.left < viewportBounds.left) {
+      expression.scrollLeft += termBounds.left - viewportBounds.left - 8;
+    }
+  }
 }
