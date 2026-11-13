@@ -34,8 +34,11 @@ function numberMarkup(text) {
   return `${number}<mo>×</mo><msup><mn>10</mn><mn>${exponent}</mn></msup>`;
 }
 
-function deviation(entry, mean) {
-  const observation = numberMarkup(entry.state === "valid" ? entry.text.replace(".", ",") : null);
+function observationMarkup(entry) {
+  return numberMarkup(entry.state === "valid" ? entry.text.replace(".", ",") : null);
+}
+
+function deviation(observation, mean) {
   const average = numberMarkup(mean == null ? null : formatAuxiliary(mean));
   return `<mrow><mo>(</mo>${observation}<mo>−</mo>${average}<mo>)</mo></mrow>`;
 }
@@ -48,12 +51,10 @@ export function renderFormula(rows, stats) {
   }
 
   const deviations = rows.map(({ x, y }) => ({
-    x: deviation(x, stats?.meanX),
-    y: deviation(y, stats?.meanY),
+    x: deviation(observationMarkup(x), stats?.meanX),
+    y: deviation(observationMarkup(y), stats?.meanY),
   }));
-  const sum = terms => `<mtable columnalign="left">${terms.map((term, index) =>
-    `<mtr><mtd><mrow>${index > 0 ? "<mo>+</mo>" : ""}${term}</mrow></mtd></mtr>`
-  ).join("")}</mtable>`;
+  const sum = terms => `<mrow>${terms.join("<mo>+</mo>")}</mrow>`;
   const products = sum(deviations.map(({ x, y }) => x + y));
   const squaresX = sum(deviations.map(({ x }) => `<msup>${x}<mn>2</mn></msup>`));
   const squaresY = sum(deviations.map(({ y }) => `<msup>${y}<mn>2</mn></msup>`));
@@ -63,7 +64,11 @@ export function renderFormula(rows, stats) {
       <mfrac>
         ${products}
         <msqrt>
-          <mrow><mo>(</mo>${squaresX}<mo>)</mo><mo>×</mo><mo>(</mo>${squaresY}<mo>)</mo></mrow>
+          <mrow>
+            <mo>(</mo>${squaresX}<mo>)</mo>
+            <mo>×</mo>
+            <mo>(</mo>${squaresY}<mo>)</mo>
+          </mrow>
         </msqrt>
       </mfrac>
     </math>`;
@@ -71,8 +76,8 @@ export function renderFormula(rows, stats) {
 
 export function renderSubstitution(rows, stats) {
   steps.innerHTML = rows.map(({ x, y }, index) => {
-    const dx = deviation(x, stats?.meanX);
-    const dy = deviation(y, stats?.meanY);
+    const dx = deviation(observationMarkup(x), stats?.meanX);
+    const dy = deviation(observationMarkup(y), stats?.meanY);
     return `<tr><th scope="row">${index + 1}</th>
       <td><math>${dx}${dy}</math></td>
       <td><math><msup>${dx}<mn>2</mn></msup></math></td>

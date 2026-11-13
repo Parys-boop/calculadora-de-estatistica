@@ -153,18 +153,14 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
   display: grid;
   justify-items: safe center;
   min-width: 0;
-  max-height: 320px;
   margin-bottom: 15px;
-  padding: 18px 12px;
-  overflow: auto;
+  padding: 8px 0;
+  overflow-x: auto;
   overscroll-behavior: contain;
-  border: 1px solid #2f4a36;
-  border-radius: 11px;
-  background: var(--well);
   color: var(--accent);
 }
-#formula-content { width: max-content; min-height: 76px; display: grid; align-items: center; }
-.formula-viewport math { font-size: clamp(1rem, 2.5vw, 1.4rem); }
+#formula-content { width: max-content; min-height: 112px; display: grid; align-items: center; }
+.formula-viewport math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
 .metrics div { min-width: 0; padding: 10px 12px; background: var(--well); border: 1px solid #263b2e; border-radius: 8px; }
 .metrics dt { color: var(--muted); font-size: .78rem; }
