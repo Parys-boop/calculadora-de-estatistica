@@ -1,8 +1,18 @@
 # Calculadora de Estatística
 
-Primeira versão para a atividade da faculdade, com a Correlação de Pearson. Insira pares X e Y com o teclado físico ou o teclado da página. O visor substitui os valores diretamente na fórmula de todos os pares e mostra as médias e as somas durante a edição. Clique em **Calcular** para ver o coeficiente com quatro casas decimais no lugar de r.
+Calculadora para a atividade da faculdade, com Correlação de Pearson e Regressão Linear Simples. Insira pares X e Y com o teclado físico ou o teclado da página. O visor substitui os valores diretamente nas fórmulas durante a edição. Use **= (Calcular)** para obter os resultados com quatro casas decimais.
 
 Campos vazios ou inválidos conservam os símbolos de suas variáveis na fórmula. As médias da prévia consideram os pares completos. A expressão conserva x̄ e ȳ até todos os pares estarem completos, quando recebe as médias e as somas calculadas em C. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
+
+## Regressão Linear Simples aprovada em 15/11/2026
+
+O segundo card abre o ajuste por mínimos quadrados, com visor organizado em médias, inclinação a, intercepto b e equação final ŷ = ax + b. A reta é disponibilizada após **Calcular**. Cada calculadora conserva seus próprios pares ao alternar entre os cards.
+
+Após ajustar a reta, informe **Valor de X para estimar Y** e use **Estimar Y**. A previsão usa os coeficientes completos em C, sem arredondamento intermediário, e avisa quando X está fora do intervalo observado. Alterar os pares invalida a reta e a previsão. Y constante é aceito, e X constante impede o ajuste.
+
+Marco aprovado pelo usuário e preservado pela tag `v0.2.0-regressao-aprovada`, mantendo a interface escura e o funcionamento de Pearson. O botão **= (Calcular)** integra o teclado ao lado do zero. Médias, somas, a, b e previsões são calculados em C/WebAssembly com `double`; os resultados são apresentados com quatro casas decimais em português brasileiro.
+
+A validação concluída inclui 19 testes automatizados, os cinco casos de regressão solicitados, conferência independente do exemplo da aula e verificações no navegador em computador e celular. Foram conferidos o visor dinâmico, edição e remoção de pares, invalidação dos resultados, previsão fora do intervalo e preservação de Pearson. Os comandos de compilação, teste e execução continuam os mesmos.
 
 ## Marco aprovado em 12/11/2026
 
@@ -13,7 +23,7 @@ Versão de Correlação de Pearson aprovada pelo usuário e preservada pela tag 
 - Médias, somas e coeficiente calculados em C com `double`, compilado para WebAssembly pelo Emscripten. Resultado com quatro casas decimais em português brasileiro e validações de campos, séries constantes e limites numéricos.
 - Validação já concluída com 11 testes automatizados e verificações no navegador, incluindo telas de computador e celular. O exemplo da aula resulta em **0,9865**, conferido independentemente com o Python.
 
-Este marco será a referência das próximas alterações. A próxima fórmula dependerá dos requisitos enviados pelo usuário e será adicionada em um novo card, preservando o funcionamento de Pearson.
+A tag de Pearson permanece como referência histórica. Novas fórmulas dependerão dos requisitos enviados pelo usuário e serão adicionadas em novos cards, preservando as calculadoras aprovadas.
 
 ## Rodar localmente
 
@@ -32,9 +42,11 @@ Para ativar o Emscripten no Windows, execute `emsdk_env.ps1` no PowerShell ou `e
 ## Organização
 
 - `src/pearson.c` calcula médias, somas e o coeficiente usando `double`.
+- `src/regression.c` reaproveita as médias e somas para ajustar a reta e calcular previsões em C com `double`.
 - `web/` contém o HTML, o CSS, a interface em JavaScript e a integração com WebAssembly.
 - `scripts/build.mjs` compila o módulo com Emscripten e monta o site estático em `dist/`.
 - `test/pearson.test.js` exercita o módulo compilado por meio da mesma integração usada no navegador.
+- `test/regression.test.js` confere os ajustes, previsões, validações e a preservação da precisão no mesmo módulo WebAssembly.
 
 Para conferir o exemplo da aula de forma independente:
 
@@ -45,6 +57,10 @@ python -c "from statistics import correlation; print(correlation([100,200,300,40
 O valor de referência é aproximadamente `0.9865208973698818`. A calculadora exibe **0,9865**.
 
 ## Publicar no GitHub Pages
+
+O repositório configurado é [Parys-boop/calculadora-de-estatistica](https://github.com/Parys-boop/calculadora-de-estatistica), e a calculadora está em [GitHub Pages](https://parys-boop.github.io/calculadora-de-estatistica/). Envios para `main` acionam o fluxo existente, que compila o C/WebAssembly, executa os testes e publica o site.
+
+Para configurar a mesma publicação em outro repositório:
 
 1. Crie um repositório GitHub público para compartilhar o site com a turma e envie o código para a branch `main`.
 2. No repositório, acesse **Settings → Pages → Build and deployment** e selecione **GitHub Actions** como fonte.

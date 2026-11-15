@@ -5,6 +5,13 @@ const scientific = new Intl.NumberFormat("pt-BR", {
 
 const formulaDisplay = document.querySelector(".symbolic");
 const formulaContext = document.querySelector("#formula-context");
+const finalNumber = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 4, maximumFractionDigits: 4,
+});
+
+export function formatFinal(value) {
+  return finalNumber.format(Math.abs(value) < 0.00005 ? 0 : value).replaceAll("-", "−");
+}
 
 export function formatAuxiliary(value) {
   if (value == null) return "—";
@@ -13,14 +20,14 @@ export function formatAuxiliary(value) {
   return formatter.format(value === 0 ? 0 : value).replaceAll("-", "−");
 }
 
-function numberMarkup(text) {
+export function numberMarkup(text) {
   const [mantissa, exponent] = text.replaceAll("-", "−").split(/[eE]/);
   const number = `<mn>${mantissa}</mn>`;
   if (exponent == null) return number;
   return `${number}<mo>×</mo><msup><mn>10</mn><mn>${exponent}</mn></msup>`;
 }
 
-function deviation(entry, axis, index, mean) {
+export function deviation(entry, axis, index, mean) {
   const observation = entry.state === "valid"
     ? numberMarkup(entry.text.replace(".", ","))
     : `<msub><mi>${axis}</mi><mn>${index + 1}</mn></msub>`;

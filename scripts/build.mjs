@@ -18,8 +18,10 @@ function collectWebFiles(directory, relativePath = "") {
 
 collectWebFiles(join(root, "web"));
 const hash = createHash("sha256")
-  .update(readFileSync(new URL(import.meta.url)))
-  .update(readFileSync(join(root, "src", "pearson.c")));
+  .update(readFileSync(new URL(import.meta.url)));
+for (const source of ["pearson.c", "pearson.h", "regression.c"]) {
+  hash.update(readFileSync(join(root, "src", source)));
+}
 for (const { path, contents } of webFiles) hash.update(path).update(contents);
 const version = hash.digest("hex").slice(0, 12);
 
@@ -27,9 +29,10 @@ const wasmDirectory = new URL("../dist/assets/wasm/", import.meta.url);
 mkdirSync(wasmDirectory, { recursive: true });
 
 const args = [
-  "src/pearson.c", "-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "--no-entry",
+  "src/pearson.c", "src/regression.c", "-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "--no-entry",
   "-sMODULARIZE=1", "-sEXPORT_ES6=1", "-sENVIRONMENT=web,node", "-sALLOW_MEMORY_GROWTH=1",
-  "-sEXPORTED_FUNCTIONS=_pearson,_malloc,_free", "-sEXPORTED_RUNTIME_METHODS=HEAPF64",
+  "-sEXPORTED_FUNCTIONS=_pearson,_linear_regression,_regression_predict,_malloc,_free",
+  "-sEXPORTED_RUNTIME_METHODS=HEAPF64",
   "-o", `dist/assets/wasm/pearson-${version}.js`,
 ];
 const options = { cwd: root, stdio: "inherit" };

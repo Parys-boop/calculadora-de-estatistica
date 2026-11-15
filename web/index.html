@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a110e">
-  <meta name="description" content="Calcule a correlação de Pearson e acompanhe a substituição dos valores na fórmula.">
+  <meta name="description" content="Calcule a correlação de Pearson e a regressão linear simples, acompanhando os valores nas fórmulas.">
   <title>Calculadora de Estatística</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/style.css">
@@ -37,10 +37,19 @@
         </div>
       </div>
 
-      <a class="formula-card" href="#pearson" aria-labelledby="card-title">
-        <h2 id="card-title">Correlação de Pearson</h2>
-        <div class="card-equation" data-symbolic-formula></div>
-      </a>
+      <div class="formula-grid">
+        <a class="formula-card" href="#pearson" aria-labelledby="card-title">
+          <h2 id="card-title">Correlação de Pearson</h2>
+          <div class="card-equation" data-symbolic-formula></div>
+        </a>
+        <a class="formula-card" href="#regressao" aria-labelledby="regression-card-title" aria-describedby="regression-description">
+          <h2 id="regression-card-title">Regressão Linear Simples</h2>
+          <div class="card-equation">
+            <math display="block" aria-label="Y estimado é igual a a vezes x mais b"><mi>ŷ</mi><mo>=</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>
+          </div>
+          <p id="regression-description" class="formula-description">Encontre a reta que representa a relação entre X e Y e estime novos valores.</p>
+        </a>
+      </div>
     </section>
 
     <section id="calculator" aria-labelledby="calculator-title" hidden>
@@ -56,6 +65,7 @@
         </div>
         <div class="display-body">
           <div class="symbolic" tabindex="0" role="region" aria-label="Fórmula de Pearson com os valores inseridos" aria-describedby="formula-context"></div>
+          <div id="regression-display" class="regression-display" hidden></div>
           <p id="formula-context" class="formula-context" hidden></p>
           <dl class="metrics">
             <div><dt>Pares completos</dt><dd><i>n</i> = <span id="count">0</span></dd></div>
@@ -93,6 +103,7 @@
               <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" class="operation" data-key="sign" aria-label="Alterar sinal">±</button>
               <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" class="operation" data-key="," aria-label="Separador decimal">,</button>
               <button type="button" data-key="0" class="zero">0</button>
+              <button type="button" id="calculate" class="calculate-button" aria-label="Calcular" title="Calcular" disabled>=</button>
             </div>
           </div>
         </div>
@@ -100,9 +111,24 @@
 
       <div class="calculate-area">
         <p id="feedback" class="feedback" role="status"></p>
-        <button type="button" id="calculate" class="calculate-button" disabled>Calcular <span aria-hidden="true">→</span></button>
         <div id="result" class="result" aria-live="polite"></div>
       </div>
+      <section id="prediction" class="panel prediction-panel" aria-labelledby="prediction-title" hidden>
+        <div class="panel-header"><h2 id="prediction-title">Previsão de Y</h2></div>
+        <div class="prediction-body">
+          <p class="entry-hint">Use a reta ajustada para estimar Y em um novo X.</p>
+          <form id="prediction-form" class="prediction-form">
+            <div>
+              <label for="prediction-x">Valor de X para estimar Y</label>
+              <input id="prediction-x" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 350">
+            </div>
+            <button type="submit" class="estimate-button">Estimar Y</button>
+          </form>
+          <p id="prediction-feedback" class="feedback" role="status"></p>
+          <div id="prediction-result" class="prediction-result" aria-live="polite"></div>
+          <p id="extrapolation-warning" class="extrapolation-warning" hidden>Este valor está fora do intervalo observado. A previsão pode ser menos confiável.</p>
+        </div>
+      </section>
     </section>
     <noscript><p class="feedback">Ative o JavaScript para usar a calculadora.</p></noscript>
   </main>

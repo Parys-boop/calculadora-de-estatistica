@@ -1,5 +1,6 @@
-import { formatAuxiliary, renderFormula } from "./display.js";
-import { loadPearson, PearsonStatus } from "./pearson.js";
+import { formatAuxiliary, formatFinal, renderFormula } from "./display.js";
+import { loadPearson, loadRegression, PearsonStatus } from "./pearson.js";
+import { renderPrediction, renderRegression } from "./regression-display.js";
 
 const home = document.querySelector("#home");
 const calculator = document.querySelector("#calculator");
@@ -8,9 +9,9 @@ const calculateButton = document.querySelector("#calculate");
 const feedback = document.querySelector("#feedback");
 const result = document.querySelector("#result");
 const selectedLabel = document.querySelector("#selected-field");
-const finalNumber = new Intl.NumberFormat("pt-BR", {
-  minimumFractionDigits: 4, maximumFractionDigits: 4,
-});
+const predictionPanel = document.querySelector("#prediction");
+const predictionInput = document.querySelector("#prediction-x");
+const predictionFeedback = document.querySelector("#prediction-feedback");
 
 const moduleError = "Não foi possível carregar o módulo de cálculo. Recarregue a página para tentar de novo.";
 const changedMessage = "Os dados mudaram. Clique em Calcular para obter o novo resultado.";
@@ -24,8 +25,12 @@ const statusMessages = {
 };
 
 let pearson;
+let regression;
 let selectedInput;
 let preview;
+let mode = "pearson";
+let regressionFit;
+const storedRows = { pearson: null, regression: null };
 
 const formula = document.querySelector("#symbolic-formula");
 for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
@@ -33,7 +38,18 @@ for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
 }
 
 function navigate(focusHeading = false) {
-  const showCalculator = location.hash === "#pearson";
+  const showCalculator = ["#pearson", "#regressao"].includes(location.hash);
+  const nextMode = location.hash === "#regressao" ? "regression" : "pearson";
+  if (showCalculator && nextMode !== mode) {
+    storedRows[mode] = Array.from(pairTable.rows, row => Array.from(row.querySelectorAll("input"), input => input.value));
+    mode = nextMode;
+    preview = undefined;
+    resetRows(storedRows[mode] ?? undefined);
+  }
+  document.querySelector("#calculator-title").textContent = mode === "regression"
+    ? "Regressão Linear Simples" : "Correlação de Pearson";
+  document.querySelector(".symbolic").hidden = mode === "regression";
+  document.querySelector("#regression-display").hidden = mode !== "regression";
   home.hidden = showCalculator;
   calculator.hidden = !showCalculator;
   if (focusHeading) {
@@ -52,16 +68,19 @@ function selectField(input) {
   if (selectedInput) delete selectedInput.dataset.selected;
   selectedInput = input;
   selectedInput.dataset.selected = "true";
-  selectedLabel.textContent = `${input.dataset.axis} · par ${input.closest("tr").sectionRowIndex + 1}`;
+  selectedLabel.textContent = input === predictionInput
+    ? "X · estimativa"
+    : `${input.dataset.axis} · par ${input.closest("tr").sectionRowIndex + 1}`;
   updateFormula();
 }
 
-function appendRow() {
+function appendRow(values = ["", ""]) {
   const row = pairTable.insertRow();
   row.innerHTML = `<th scope="row"></th>
     <td><input type="text" inputmode="decimal" data-axis="X" placeholder="—" autocomplete="off" spellcheck="false"></td>
     <td><input type="text" inputmode="decimal" data-axis="Y" placeholder="—" autocomplete="off" spellcheck="false"></td>
     <td><button type="button" class="remove-button"><span aria-hidden="true">×</span></button></td>`;
+  row.querySelectorAll("input").forEach((input, index) => { input.value = values[index]; });
   return row;
 }
 
@@ -104,6 +123,10 @@ function readRows() {
 
 function updateFormula() {
   if (!preview) return;
+  if (mode === "regression") {
+    renderRegression(preview.rows, preview.stats, regressionFit);
+    return;
+  }
   const coefficient = result.querySelector("strong")?.textContent;
   renderFormula(preview.rows, preview.stats, coefficient);
 }
@@ -114,7 +137,7 @@ function updatePreview() {
   let stats;
   if (pearson && pairs.length > 0) {
     try {
-      stats = pearson(pairs);
+      stats = mode === "regression" ? regression.analyze(pairs) : pearson(pairs);
     } catch {
       message("Não foi possível processar os pares. Reduza a quantidade de dados e tente novamente.", true);
     }
@@ -141,6 +164,11 @@ function updatePreview() {
 function dataChanged() {
   const needsCalculation = result.textContent || feedback.textContent === changedMessage;
   result.replaceChildren();
+  regressionFit = undefined;
+  predictionPanel.hidden = true;
+  predictionInput.value = "";
+  clearPrediction();
+  if (selectedInput === predictionInput) selectField(pairTable.querySelector("input"));
   for (const input of pairTable.querySelectorAll("[aria-invalid]")) {
     input.removeAttribute("aria-invalid");
   }
@@ -148,11 +176,14 @@ function dataChanged() {
   updatePreview();
 }
 
-function resetRows() {
+function resetRows(values = [["", ""], ["", ""]]) {
   pairTable.replaceChildren();
-  appendRow();
-  appendRow();
+  for (const pair of values) appendRow(pair);
   labelRows();
+  regressionFit = undefined;
+  predictionPanel.hidden = true;
+  predictionInput.value = "";
+  clearPrediction();
   selectField(pairTable.querySelector("input"));
   result.replaceChildren();
   if (pearson) message("");
@@ -178,7 +209,10 @@ function applyKey(key) {
     if (key === "," && /[.,]/.test(remainder)) return;
     input.setRangeText(key, start, end, "end");
   }
-  if (input.value !== value) dataChanged();
+  if (input.value !== value) {
+    if (input === predictionInput) clearPrediction();
+    else dataChanged();
+  }
 }
 
 function calculate() {
@@ -206,24 +240,79 @@ function calculate() {
 
   let stats;
   try {
-    stats = pearson(pairs, true);
+    stats = mode === "regression" ? regression.analyze(pairs, true) : pearson(pairs, true);
   } catch {
     message("Não foi possível processar os pares. Reduza a quantidade de dados e tente novamente.", true);
     return;
   }
-  if (stats.status !== PearsonStatus.OK || stats.coefficient == null) {
-    message(statusMessages[stats.status] ?? statusMessages[PearsonStatus.NUMERIC_ERROR], true);
+  const validResult = mode === "regression"
+    ? stats.a != null && stats.b != null : stats.coefficient != null;
+  if (stats.status !== PearsonStatus.OK || !validResult) {
+    const constantX = mode === "regression" && stats.status === PearsonStatus.CONSTANT_X;
+    message(constantX
+      ? "Não há variação suficiente em X para determinar a reta. Informe valores diferentes de X."
+      : statusMessages[stats.status] ?? statusMessages[PearsonStatus.NUMERIC_ERROR], true);
     return;
   }
 
   message();
-  const roundedZero = Math.abs(stats.coefficient) < 0.00005;
-  const formatted = finalNumber.format(roundedZero ? 0 : stats.coefficient).replace("-", "−");
+  if (mode === "regression") {
+    regressionFit = stats;
+    predictionPanel.hidden = false;
+    clearPrediction();
+    result.innerHTML = `
+      <div class="fit-values"><span>a = <strong>${formatFinal(stats.a)}</strong></span><span>b = <strong>${formatFinal(stats.b)}</strong></span></div>
+      <p class="fit-explanation">a indica a variação estimada de Y para cada unidade adicional de X. b é o valor previsto de Y quando X = 0.</p>`;
+    updateFormula();
+    document.querySelector(".regression-final").scrollIntoView({ block: "nearest" });
+    return;
+  }
+  const formatted = formatFinal(stats.coefficient);
   const value = document.createElement("strong");
   value.textContent = formatted;
   result.append("Resultado de r =", value);
   updateFormula();
   document.querySelector(".symbolic").scrollIntoView({ block: "center" });
+}
+
+function clearPrediction() {
+  document.querySelector("#prediction-result").replaceChildren();
+  predictionFeedback.textContent = "";
+  predictionFeedback.dataset.error = "false";
+  predictionInput.removeAttribute("aria-invalid");
+  document.querySelector("#extrapolation-warning").hidden = true;
+}
+
+function predict(event) {
+  event.preventDefault();
+  clearPrediction();
+  if (!regressionFit) return;
+  const entry = parseEntry(predictionInput);
+  if (entry.state !== "valid") {
+    predictionFeedback.textContent = "Digite um valor numérico finito de X para estimar Y.";
+    predictionFeedback.dataset.error = "true";
+    predictionInput.setAttribute("aria-invalid", "true");
+    selectField(predictionInput);
+    return;
+  }
+  let prediction;
+  try {
+    prediction = regression.predict(regressionFit, entry.value);
+  } catch {
+    predictionFeedback.textContent = "Não foi possível estimar Y. Tente novamente.";
+    predictionFeedback.dataset.error = "true";
+    return;
+  }
+  if (prediction.status !== PearsonStatus.OK || prediction.value == null) {
+    predictionFeedback.textContent = "Os valores excederam a precisão disponível para a previsão. Revise a escala de X.";
+    predictionFeedback.dataset.error = "true";
+    return;
+  }
+  renderPrediction(regressionFit, entry, prediction.value);
+  const warning = document.querySelector("#extrapolation-warning");
+  warning.hidden = !prediction.outside;
+  const predictionTarget = prediction.outside ? warning : document.querySelector("#prediction-result");
+  predictionTarget.scrollIntoView({ block: "nearest" });
 }
 
 pairTable.addEventListener("focusin", event => {
@@ -253,7 +342,10 @@ document.querySelector("#add").addEventListener("click", () => {
   selectedInput.focus();
   dataChanged();
 });
-document.querySelector("#clear").addEventListener("click", resetRows);
+document.querySelector("#clear").addEventListener("click", () => resetRows());
+predictionInput.addEventListener("focus", () => selectField(predictionInput));
+predictionInput.addEventListener("input", clearPrediction);
+document.querySelector("#prediction-form").addEventListener("submit", predict);
 const keys = document.querySelector(".keys");
 keys.addEventListener("pointerdown", event => {
   if (event.pointerType === "mouse" && document.activeElement === selectedInput) {
@@ -272,6 +364,7 @@ navigate();
 message("Carregando módulo de cálculo…");
 try {
   pearson = await loadPearson();
+  regression = await loadRegression();
   calculateButton.disabled = false;
   message();
   updatePreview();
