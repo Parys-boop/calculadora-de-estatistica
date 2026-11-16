@@ -11,10 +11,13 @@ test("HTML, módulos e WebAssembly usam a mesma versão para evitar arquivos ant
   assert.ok(html.includes(`./assets/style.css?v=${version}`));
 
   const app = readFileSync(new URL("assets/app.js", dist), "utf8");
-  for (const dependency of ["display", "pearson", "regression-display"]) {
+  for (const dependency of ["display", "pearson", "regression-display", "confidence-app", "numeric-input"]) {
     assert.ok(app.includes(`"./${dependency}.js?v=${version}"`));
     assert.ok(existsSync(new URL(`assets/${dependency}.js`, dist)));
   }
+  const confidence = readFileSync(new URL("assets/confidence-app.js", dist), "utf8");
+  assert.ok(confidence.includes(`"./confidence-display.js?v=${version}"`));
+  assert.ok(existsSync(new URL("assets/confidence-display.js", dist)));
   const integration = readFileSync(new URL("assets/pearson.js", dist), "utf8");
   const moduleName = `pearson-${version}`;
   assert.ok(integration.includes(`"./wasm/${moduleName}.js?v=${version}"`));

@@ -1,6 +1,19 @@
 # Calculadora de Estatística
 
-Calculadora para a atividade da faculdade, com Correlação de Pearson e Regressão Linear Simples. Insira pares X e Y com o teclado físico ou o teclado da página. O visor substitui os valores diretamente nas fórmulas durante a edição. Use **= (Calcular)** para obter os resultados com quatro casas decimais.
+Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples e Intervalo de Confiança para a Média. Nas duas primeiras, insira pares X e Y; na terceira, informe os dados resumidos da amostra. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados com quatro casas decimais.
+
+## Intervalo de Confiança para a Média
+
+O terceiro card recebe média, desvio padrão, n inteiro positivo, confiança (90%, 95% ou 99%) e tipo do desvio. A confiança inicial é 95%, com desvio amostral. Margem e limites são calculados em `src/confidence.c` no mesmo módulo WebAssembly, com `double`, sem arredondar a margem antes de obter os limites. O resultado aparece abaixo do visor da fórmula, acima dos dados resumidos. Alterar qualquer entrada invalida o resultado; campos pendentes permanecem como símbolos na prévia.
+
+O método Z segue os valores **tabelados arredondados do material da aula**: **90% → 1,645; 95% → 1,96; 99% → 2,575**, inclusive esse arredondamento de 99%. Usa α = 1 − confiança, Em = Z × desvio / √n e IC = (x̄ − Em; x̄ + Em).
+
+- Com **s amostral**, permite somente **n > 30** e identifica o resultado como aproximação Z segundo a regra do material. Essa regra não garante validade estatística universal. Para n ≤ 30, bloqueia e explica a necessidade de avaliar t de Student, ainda não implementado.
+- Com **σ populacional conhecido**, aceita n inteiro positivo; para **n ≤ 30**, exige confirmação explícita de que a população tem distribuição normal.
+- O método pressupõe amostra aleatória e observações independentes, condições que os dados resumidos não permitem verificar. O intervalo estima a **média populacional**, não os valores individuais. A interpretação da confiança se refere à cobertura de intervalos em repetições do procedimento.
+- Desvio zero produz margem zero e limites iguais à média, com observação sobre o significado do desvio informado. Limites negativos são preservados. n está limitado ao maior inteiro exato da integração JavaScript/double, 9.007.199.254.740.991; entradas fracionárias não são arredondadas.
+
+`npm test` verifica os quatro exemplos da aula contra referências calculadas independentemente com Python `decimal` (precisão 60), os valores de Z, as condições do método e as falhas numéricas, além dos testes preservados de Pearson e regressão. Não há t de Student, gráficos ou quarta fórmula neste marco.
 
 Campos vazios ou inválidos conservam os símbolos de suas variáveis na fórmula. As médias da prévia consideram os pares completos. A expressão conserva x̄ e ȳ até todos os pares estarem completos, quando recebe as médias e as somas calculadas em C. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
 

@@ -143,7 +143,7 @@ h1, h2, h3, p { margin: 0; }
 math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .card-equation math { font-size: clamp(.9rem, 4.5vw, 1.8rem); }
 
-#calculator { padding-bottom: 48px; }
+#calculator, #confidence-calculator { padding-bottom: 48px; }
 .calculator-heading { padding: 30px 0 24px; }
 .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: .9rem; }
 .back-link:hover { color: var(--accent); }
@@ -298,6 +298,28 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
 .prediction-result > p { margin-top: 10px; font-variant-numeric: tabular-nums; }
 .prediction-result strong { font-size: 1.4rem; }
 .extrapolation-warning { margin-top: 12px; color: #e2cc93; font-size: .85rem; line-height: 1.5; }
+.confidence-display { display: grid; gap: 16px; margin-bottom: 16px; }
+.confidence-fields { display: grid; gap: 16px; min-width: 0; }
+.confidence-field { min-width: 0; }
+.confidence-field label { display: block; margin-bottom: 7px; font-size: .9rem; }
+.confidence-field input, .confidence-field select {
+  width: 100%; min-width: 0; min-height: 44px; padding: 8px 11px;
+  border: 1px solid #3a5344; border-radius: 8px; background: var(--well); color: var(--text); font: inherit;
+}
+.confidence-field input::placeholder { color: #779285; opacity: 1; }
+.confidence-field input[data-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: #1b2c1c; }
+.confidence-field [aria-invalid="true"] { border-color: var(--danger); }
+.confidence-field .entry-hint { margin: 6px 0 0; }
+.confidence-normality { padding: 14px; border: 1px solid #6b603c; border-radius: 8px; background: #272719; color: #e2cc93; font-size: .87rem; line-height: 1.5; }
+.confidence-normality label { display: flex; align-items: start; gap: 9px; margin-top: 12px; cursor: pointer; }
+.confidence-normality input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.confidence-normality input[aria-invalid="true"] { outline: 2px solid var(--danger); }
+.confidence-conditions { display: grid; gap: 8px; padding: 0 21px 21px; color: var(--muted); font-size: .85rem; line-height: 1.55; }
+.confidence-result:not(:empty) { margin-top: 0; margin-bottom: 18px; }
+.confidence-result .metrics { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); margin-bottom: 15px; }
+.confidence-result .metrics dd { font-size: 1.1rem; }
+.confidence-result p + p { margin-top: 9px; }
+.confidence-method-label { margin-bottom: 12px; color: var(--accent); font-size: .9rem; font-weight: 650; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 @media (max-width: 850px) {
@@ -317,6 +339,7 @@ math { font-size: clamp(1rem, 2.6vw, 1.6rem); }
   .shell { width: calc(100% - 28px); }
   .header-content { min-height: 56px; }
   .panel-header, .display-body, .entry-layout { padding-left: 12px; padding-right: 12px; }
+  .confidence-conditions { padding-left: 12px; padding-right: 12px; }
   .metrics div { padding: 7px 6px; }
   .metrics dt { font-size: .72rem; }
   .hero h1 { font-size: clamp(2.2rem, 10vw, 2.75rem); }

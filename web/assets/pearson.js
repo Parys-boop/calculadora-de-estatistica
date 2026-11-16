@@ -8,6 +8,18 @@ export const PearsonStatus = Object.freeze({
   NUMERIC_ERROR: 6,
 });
 
+export const ConfidenceStatus = Object.freeze({
+  OK: 0,
+  NON_FINITE_INPUT: 1,
+  INVALID_N: 2,
+  NEGATIVE_DEVIATION: 3,
+  INVALID_LEVEL: 4,
+  INVALID_DEVIATION_TYPE: 5,
+  SAMPLE_TOO_SMALL: 6,
+  NORMALITY_REQUIRED: 7,
+  NUMERIC_ERROR: 8,
+});
+
 const bytesPerValue = Float64Array.BYTES_PER_ELEMENT;
 let modulePromise;
 
@@ -68,5 +80,23 @@ export async function loadRegression() {
         wasm._free(address);
       }
     },
+  };
+}
+
+export async function loadConfidence() {
+  const wasm = await loadModule();
+  return ({ mean, deviation, n, confidence, deviationType, normalityConfirmed = false }, calculate = false) => {
+    const address = wasm._malloc(6 * bytesPerValue);
+    if (!address) throw new Error("Não há memória suficiente para calcular o intervalo.");
+    try {
+      const status = wasm._confidence_interval(mean, deviation, n, confidence,
+        deviationType, Number(normalityConfirmed), Number(calculate), address);
+      const start = address / bytesPerValue;
+      const [level, alpha, z, margin, lower, upper] = Array.from(
+        wasm.HEAPF64.subarray(start, start + 6), value => Number.isFinite(value) ? value : null);
+      return { status, level, alpha, z, margin, lower, upper };
+    } finally {
+      wasm._free(address);
+    }
   };
 }

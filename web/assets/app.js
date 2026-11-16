@@ -1,6 +1,8 @@
 import { formatAuxiliary, formatFinal, renderFormula } from "./display.js";
-import { loadPearson, loadRegression, PearsonStatus } from "./pearson.js";
+import { loadConfidence, loadPearson, loadRegression, PearsonStatus } from "./pearson.js";
 import { renderPrediction, renderRegression } from "./regression-display.js";
+import { initializeConfidence } from "./confidence-app.js";
+import { editNumber, parseEntry } from "./numeric-input.js";
 
 const home = document.querySelector("#home");
 const calculator = document.querySelector("#calculator");
@@ -31,6 +33,7 @@ let preview;
 let mode = "pearson";
 let regressionFit;
 const storedRows = { pearson: null, regression: null };
+const confidence = initializeConfidence();
 
 const formula = document.querySelector("#symbolic-formula");
 for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
@@ -39,6 +42,7 @@ for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
 
 function navigate(focusHeading = false) {
   const showCalculator = ["#pearson", "#regressao"].includes(location.hash);
+  const showConfidence = location.hash === "#intervalo";
   const nextMode = location.hash === "#regressao" ? "regression" : "pearson";
   if (showCalculator && nextMode !== mode) {
     storedRows[mode] = Array.from(pairTable.rows, row => Array.from(row.querySelectorAll("input"), input => input.value));
@@ -50,11 +54,12 @@ function navigate(focusHeading = false) {
     ? "Regressão Linear Simples" : "Correlação de Pearson";
   document.querySelector(".symbolic").hidden = mode === "regression";
   document.querySelector("#regression-display").hidden = mode !== "regression";
-  home.hidden = showCalculator;
+  home.hidden = showCalculator || showConfidence;
   calculator.hidden = !showCalculator;
+  confidence.panel.hidden = !showConfidence;
   if (focusHeading) {
     window.scrollTo(0, 0);
-    const section = showCalculator ? calculator : home;
+    const section = showCalculator ? calculator : showConfidence ? confidence.panel : home;
     section.querySelector("h1").focus({ preventScroll: true });
   }
 }
@@ -95,20 +100,6 @@ function labelRows() {
     remove.setAttribute("aria-label", `Remover par ${number}`);
     remove.disabled = pairTable.rows.length === 1;
   }
-}
-
-function parseEntry(input) {
-  const text = input.value.trim().replaceAll("−", "-");
-  if (!text) return { state: "blank", input };
-  const validNumber = /^[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)(?:e[+-]?\d+)?$/i;
-  if (validNumber.test(text)) {
-    const value = Number(text.replace(",", "."));
-    const mantissa = text.split(/[eE]/)[0];
-    if (Number.isFinite(value) && (value !== 0 || !/[1-9]/.test(mantissa))) {
-      return { state: "valid", input, value, text };
-    }
-  }
-  return { state: "invalid", input };
 }
 
 function readRows() {
@@ -192,24 +183,7 @@ function resetRows(values = [["", ""], ["", ""]]) {
 
 function applyKey(key) {
   const input = selectedInput;
-  const { value, selectionStart: start, selectionEnd: end } = input;
-  if (key === "sign") {
-    const prefix = value.match(/^\s*/)[0];
-    const number = value.slice(prefix.length);
-    const signed = /^[+−-]/.test(number);
-    const negative = /^[-−]/.test(number);
-    input.value = prefix + (negative ? number.slice(1) : `-${signed ? number.slice(1) : number}`);
-    const shift = negative ? -1 : signed ? 0 : 1;
-    const move = position => position < prefix.length ? position : Math.max(prefix.length, position + shift);
-    input.setSelectionRange(move(start), move(end));
-  } else if (key === "delete") {
-    input.setRangeText("", start === end ? Math.max(0, start - 1) : start, end, "end");
-  } else {
-    const remainder = value.slice(0, start) + value.slice(end);
-    if (key === "," && /[.,]/.test(remainder)) return;
-    input.setRangeText(key, start, end, "end");
-  }
-  if (input.value !== value) {
+  if (editNumber(input, key)) {
     if (input === predictionInput) clearPrediction();
     else dataChanged();
   }
@@ -365,10 +339,12 @@ message("Carregando módulo de cálculo…");
 try {
   pearson = await loadPearson();
   regression = await loadRegression();
+  confidence.setEngine(await loadConfidence());
   calculateButton.disabled = false;
   message();
   updatePreview();
 } catch (error) {
+  confidence.setError(moduleError);
   message(moduleError, true);
   console.error(error);
 }

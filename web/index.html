@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a110e">
-  <meta name="description" content="Calcule a correlação de Pearson e a regressão linear simples, acompanhando os valores nas fórmulas.">
+  <meta name="description" content="Calcule correlação de Pearson, regressão linear simples e intervalo de confiança para a média, acompanhando as fórmulas.">
   <title>Calculadora de Estatística</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/style.css">
@@ -48,6 +48,16 @@
             <math display="block" aria-label="Y estimado é igual a a vezes x mais b"><mi>ŷ</mi><mo>=</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>
           </div>
           <p id="regression-description" class="formula-description">Encontre a reta que representa a relação entre X e Y e estime novos valores.</p>
+        </a>
+        <a class="formula-card" href="#intervalo" aria-labelledby="confidence-card-title" aria-describedby="confidence-description">
+          <h2 id="confidence-card-title">Intervalo de Confiança para a Média</h2>
+          <div class="card-equation">
+            <math display="block" aria-label="IC é o intervalo de média menos margem de erro até média mais margem de erro">
+              <mi>IC</mi><mo>=</mo><mo>(</mo><mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo>−</mo><msub><mi>E</mi><mi>m</mi></msub><mo>;</mo>
+              <mover accent="true"><mi>x</mi><mo>¯</mo></mover><mo>+</mo><msub><mi>E</mi><mi>m</mi></msub><mo>)</mo>
+            </math>
+          </div>
+          <p id="confidence-description" class="formula-description">Estime um intervalo para a média da população a partir dos dados de uma amostra.</p>
         </a>
       </div>
     </section>
@@ -127,6 +137,72 @@
           <p id="prediction-feedback" class="feedback" role="status"></p>
           <div id="prediction-result" class="prediction-result" aria-live="polite"></div>
           <p id="extrapolation-warning" class="extrapolation-warning" hidden>Este valor está fora do intervalo observado. A previsão pode ser menos confiável.</p>
+        </div>
+      </section>
+    </section>
+    <section id="confidence-calculator" aria-labelledby="confidence-title" hidden>
+      <div class="calculator-heading">
+        <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
+        <h1 id="confidence-title" tabindex="-1">Intervalo de Confiança para a Média</h1>
+      </div>
+
+      <section class="panel display-panel" aria-labelledby="confidence-display-title">
+        <div class="panel-header">
+          <h2 id="confidence-display-title">Visor da fórmula</h2>
+          <p id="confidence-preview-note">Preencha os dados da amostra</p>
+        </div>
+        <div class="display-body">
+          <div id="confidence-display" class="confidence-display"></div>
+          <p class="entry-hint">Z da tabela da aula: 90% → 1,645; 95% → 1,96; 99% → 2,575. São valores tabelados arredondados, inclusive o de 99%.</p>
+        </div>
+      </section>
+
+      <div class="calculate-area">
+        <p id="confidence-feedback" class="feedback" role="status"></p>
+        <div id="confidence-result" class="result confidence-result" aria-live="polite"></div>
+      </div>
+
+      <section class="panel data-panel" aria-labelledby="confidence-data-title">
+        <div class="panel-header">
+          <h2 id="confidence-data-title">Dados resumidos da amostra</h2>
+          <button type="button" class="text-button" id="confidence-clear">Limpar dados</button>
+        </div>
+        <form id="confidence-form" novalidate>
+          <div class="entry-layout">
+            <div class="confidence-fields">
+              <div class="confidence-field">
+                <label for="confidence-mean">Média da amostra (x̄)</label>
+                <input id="confidence-mean" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 1,75" data-field-name="Média (x̄)">
+              </div>
+              <div class="confidence-field">
+                <label for="confidence-deviation">Desvio padrão</label>
+                <input id="confidence-deviation" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 0,13" data-field-name="Desvio padrão">
+              </div>
+              <div class="confidence-field">
+                <label for="confidence-n">Tamanho da amostra (n)</label>
+                <input id="confidence-n" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 40" data-field-name="Tamanho (n)" aria-describedby="confidence-n-help">
+                <p id="confidence-n-help" class="entry-hint">Número inteiro positivo.</p>
+              </div>
+              <div class="confidence-field">
+                <label for="confidence-level">Nível de confiança</label>
+                <select id="confidence-level"><option value="90">90%</option><option value="95" selected>95%</option><option value="99">99%</option></select>
+              </div>
+              <div class="confidence-field">
+                <label for="confidence-deviation-type">Tipo do desvio padrão</label>
+                <select id="confidence-deviation-type" aria-describedby="confidence-deviation-help"><option value="0" selected>Amostral (s)</option><option value="1">Populacional conhecido (σ)</option></select>
+                <p id="confidence-deviation-help" class="entry-hint">Calculado apenas com os elementos da amostra.</p>
+              </div>
+              <div id="confidence-normality" class="confidence-normality" hidden>
+                <p>Com σ conhecido e n ≤ 30, o método Z pressupõe uma população com distribuição normal.</p>
+                <label for="confidence-normal-confirmed"><input type="checkbox" id="confidence-normal-confirmed"> Confirmo que a população estudada tem distribuição normal.</label>
+              </div>
+            </div>
+            <div id="confidence-keypad"></div>
+          </div>
+        </form>
+        <div class="confidence-conditions">
+          <p id="confidence-method-note">Com desvio amostral, o material adota a aproximação Z somente para n &gt; 30; essa regra não garante a validade em qualquer população.</p>
+          <p>O método pressupõe uma amostra aleatória e observações independentes. A calculadora não verifica essas condições a partir dos valores resumidos.</p>
         </div>
       </section>
     </section>
