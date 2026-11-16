@@ -2,7 +2,9 @@
 
 Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples e Intervalo de Confiança para a Média. Nas duas primeiras, insira pares X e Y; na terceira, informe os dados resumidos da amostra. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados com quatro casas decimais.
 
-## Intervalo de Confiança para a Média
+## Intervalo de Confiança para a Média aprovado em 16/11/2026
+
+Marco testado e aprovado pelo usuário, preservado pela tag `v0.3.0-intervalo-aprovado`. A aprovação abrange o terceiro card, os cálculos em C/WebAssembly, o visor dinâmico, as validações e a seleção entre desvio padrão amostral e populacional. O visual e o funcionamento aprovados de Pearson e Regressão Linear Simples permanecem preservados.
 
 O terceiro card recebe média, desvio padrão, n inteiro positivo, confiança (90%, 95% ou 99%) e tipo do desvio. A confiança inicial é 95%, com desvio amostral. Margem e limites são calculados em `src/confidence.c` no mesmo módulo WebAssembly, com `double`, sem arredondar a margem antes de obter os limites. O resultado aparece abaixo do visor da fórmula, acima dos dados resumidos. Alterar qualquer entrada invalida o resultado; campos pendentes permanecem como símbolos na prévia.
 
