@@ -20,6 +20,14 @@ export const ConfidenceStatus = Object.freeze({
   NUMERIC_ERROR: 8,
 });
 
+export const ProportionStatus = Object.freeze({
+  OK: 0,
+  INVALID_N: 1,
+  INVALID_X: 2,
+  INVALID_LEVEL: 3,
+  EXTREME: 4,
+});
+
 const bytesPerValue = Float64Array.BYTES_PER_ELEMENT;
 let modulePromise;
 
@@ -95,6 +103,24 @@ export async function loadConfidence() {
       const [level, alpha, z, margin, lower, upper] = Array.from(
         wasm.HEAPF64.subarray(start, start + 6), value => Number.isFinite(value) ? value : null);
       return { status, level, alpha, z, margin, lower, upper };
+    } finally {
+      wasm._free(address);
+    }
+  };
+}
+
+export async function loadProportion() {
+  const wasm = await loadModule();
+  const outputLength = 9;
+  return ({ x, n, confidence }, calculate = false) => {
+    const address = wasm._malloc(outputLength * bytesPerValue);
+    if (!address) throw new Error("Não há memória suficiente para calcular o intervalo.");
+    try {
+      const status = wasm._proportion_interval(x, n, confidence, Number(calculate), address);
+      const start = address / bytesPerValue;
+      const [z, fraction, percent, smallSample, margin, lower, upper, lowerCeiling, upperCeiling] =
+        Array.from(wasm.HEAPF64.subarray(start, start + outputLength), value => Number.isFinite(value) ? value : null);
+      return { status, z, fraction, percent, smallSample: smallSample === 1, margin, lower, upper, lowerCeiling, upperCeiling };
     } finally {
       wasm._free(address);
     }

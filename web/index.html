@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a110e">
-  <meta name="description" content="Calcule correlação de Pearson, regressão linear simples e intervalo de confiança para a média, acompanhando as fórmulas.">
+  <meta name="description" content="Calcule correlação de Pearson, regressão linear simples e intervalos de confiança para média e proporção, acompanhando as fórmulas.">
   <title>Calculadora de Estatística</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/style.css">
@@ -58,6 +58,16 @@
             </math>
           </div>
           <p id="confidence-description" class="formula-description">Estime um intervalo para a média da população a partir dos dados de uma amostra.</p>
+        </a>
+        <a class="formula-card" href="#proporcao" aria-labelledby="proportion-card-title" aria-describedby="proportion-description">
+          <h2 id="proportion-card-title">Intervalo de Confiança para Proporção</h2>
+          <div class="card-equation">
+            <math display="block" aria-label="IC é o intervalo de p menos margem de erro até p mais margem de erro">
+              <mi>IC</mi><mo>=</mo><mo>(</mo><mi>p</mi><mo>−</mo><msub><mi>E</mi><mi>p</mi></msub><mo>;</mo>
+              <mi>p</mi><mo>+</mo><msub><mi>E</mi><mi>p</mi></msub><mo>)</mo>
+            </math>
+          </div>
+          <p id="proportion-description" class="formula-description">Estime um intervalo para a proporção de uma característica na população.</p>
         </a>
       </div>
     </section>
@@ -204,6 +214,56 @@
           <p id="confidence-method-note">Com desvio amostral, o material adota a aproximação Z somente para n &gt; 30; essa regra não garante a validade em qualquer população.</p>
           <p>O método pressupõe uma amostra aleatória e observações independentes. A calculadora não verifica essas condições a partir dos valores resumidos.</p>
         </div>
+      </section>
+    </section>
+    <section id="proportion-calculator" aria-labelledby="proportion-title" hidden>
+      <div class="calculator-heading">
+        <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
+        <h1 id="proportion-title" tabindex="-1">Intervalo de Confiança para Proporção</h1>
+      </div>
+
+      <section class="panel display-panel" aria-labelledby="proportion-display-title">
+        <div class="panel-header">
+          <h2 id="proportion-display-title">Visor da fórmula</h2>
+          <p id="proportion-preview-note">Preencha os dados da amostra</p>
+        </div>
+        <div class="display-body">
+          <div id="proportion-display" class="confidence-display"></div>
+          <p class="entry-hint">Aproximação pela normal (método Z).</p>
+        </div>
+      </section>
+
+      <div class="calculate-area">
+        <p id="proportion-feedback" class="feedback" role="status"></p>
+        <div id="proportion-result" class="result confidence-result" aria-live="polite"></div>
+      </div>
+
+      <section class="panel data-panel" aria-labelledby="proportion-data-title">
+        <div class="panel-header">
+          <h2 id="proportion-data-title">Dados da amostra</h2>
+          <button type="button" class="text-button" id="proportion-clear">Limpar dados</button>
+        </div>
+        <form novalidate>
+          <div class="entry-layout">
+            <div class="confidence-fields">
+              <div class="confidence-field">
+                <label for="proportion-x">Quantidade de casos (x)</label>
+                <input id="proportion-x" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 560" data-field-name="Casos (x)" aria-describedby="proportion-x-help">
+                <p id="proportion-x-help" class="entry-hint">Observações com a característica estudada, como usuários satisfeitos.</p>
+              </div>
+              <div class="confidence-field">
+                <label for="proportion-n">Tamanho da amostra (n)</label>
+                <input id="proportion-n" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Ex. 800" data-field-name="Tamanho (n)" aria-describedby="proportion-n-help">
+                <p id="proportion-n-help" class="entry-hint">Total de observações. Informe um inteiro positivo.</p>
+              </div>
+              <div class="confidence-field">
+                <label for="proportion-level">Nível de confiança</label>
+                <select id="proportion-level"><option value="90">90%</option><option value="95" selected>95%</option><option value="99">99%</option></select>
+              </div>
+            </div>
+            <div id="proportion-keypad"></div>
+          </div>
+        </form>
       </section>
     </section>
     <noscript><p class="feedback">Ative o JavaScript para usar a calculadora.</p></noscript>

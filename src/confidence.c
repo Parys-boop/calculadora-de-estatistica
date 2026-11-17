@@ -1,4 +1,5 @@
 #include <math.h>
+#include "normal-critical.h"
 
 enum ConfidenceStatus {
     CONFIDENCE_OK,
@@ -22,12 +23,8 @@ int confidence_interval(double mean, double deviation, double n, double confiden
                         int calculate, double *output) {
     for (int i = 0; i < CONFIDENCE_OUTPUT_COUNT; ++i) output[i] = NAN;
 
-    /* Valores arredondados da tabela da aula, inclusive 2,575 para 99%. */
-    double z;
-    if (confidence == 90.0) z = 1.645;
-    else if (confidence == 95.0) z = 1.96;
-    else if (confidence == 99.0) z = 2.575;
-    else return CONFIDENCE_INVALID_LEVEL;
+    double z = normal_critical_value(confidence);
+    if (!isfinite(z)) return CONFIDENCE_INVALID_LEVEL;
     output[LEVEL] = confidence / 100.0;
     output[ALPHA] = 1.0 - output[LEVEL];
     output[Z_CRITICAL] = z;

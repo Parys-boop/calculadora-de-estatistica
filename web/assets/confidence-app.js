@@ -1,6 +1,6 @@
 import { ConfidenceStatus as Status } from "./pearson.js";
 import { confidenceMarkup, confidenceResultMarkup } from "./confidence-display.js";
-import { editNumber, isExactSampleSize, parseEntry } from "./numeric-input.js";
+import { attachNumericKeypad, isExactSampleSize, parseEntry } from "./numeric-input.js";
 
 const changedMessage = "Os dados mudaram. Clique em Calcular para obter o novo resultado.";
 const messages = {
@@ -26,27 +26,15 @@ export function initializeConfidence() {
   const result = panel.querySelector("#confidence-result");
   const display = panel.querySelector("#confidence-display");
   const note = panel.querySelector("#confidence-preview-note");
-  const keypad = document.querySelector("#calculator .keypad").cloneNode(true);
-  // Mesmos controles e estilos aprovados, com IDs próprios para esta calculadora.
-  for (const element of keypad.querySelectorAll("[id]")) element.id = `confidence-${element.id}`;
-  keypad.setAttribute("aria-labelledby", "confidence-keypad-title");
-  panel.querySelector("#confidence-keypad").append(keypad);
-  const calculateButton = keypad.querySelector(".calculate-button");
-  const selectedLabel = keypad.querySelector("#confidence-selected-field");
+  const { calculateButton, selectField } = attachNumericKeypad(
+    panel.querySelector("#confidence-keypad"), "confidence", dataChanged,
+  );
   let engine;
-  let selectedInput;
   let calculated;
 
   function message(text = "", error = false) {
     feedback.textContent = text;
     feedback.dataset.error = String(error);
-  }
-
-  function selectField(input) {
-    if (selectedInput) delete selectedInput.dataset.selected;
-    selectedInput = input;
-    selectedInput.dataset.selected = "true";
-    selectedLabel.textContent = input.dataset.fieldName;
   }
 
   function read() {
@@ -145,14 +133,6 @@ export function initializeConfidence() {
   });
   form.addEventListener("submit", calculate);
   calculateButton.addEventListener("click", calculate);
-  const keys = keypad.querySelector(".keys");
-  keys.addEventListener("pointerdown", event => {
-    if (event.pointerType === "mouse" && document.activeElement === selectedInput) event.preventDefault();
-  });
-  keys.addEventListener("click", event => {
-    const key = event.target.closest("[data-key]");
-    if (key && editNumber(selectedInput, key.dataset.key)) dataChanged(selectedInput);
-  });
   panel.querySelector("#confidence-clear").addEventListener("click", () => {
     form.reset();
     selectField(fields.mean);

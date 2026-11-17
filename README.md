@@ -1,6 +1,18 @@
 # Calculadora de Estatística
 
-Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples e Intervalo de Confiança para a Média. Nas duas primeiras, insira pares X e Y; na terceira, informe os dados resumidos da amostra. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados com quatro casas decimais.
+Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples e intervalos de confiança para média e proporção. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados.
+
+## Intervalo de Confiança para Proporção aprovado em 17/11/2026
+
+Marco testado e aprovado pelo usuário, preservado pela tag `v0.4.0-proporcao-aprovada`. O quarto card apresenta a proporção amostral, a margem em pontos percentuais e o intervalo com duas casas decimais, além da exibição adicional **Limites arredondados para cima**, que aplica o teto aos dois limites percentuais antes do arredondamento decimal.
+
+A validação concluída inclui 46 testes automatizados e conferências no navegador do visor, teclado, edição, validações, extremos e das outras três calculadoras. Com 560 casos em 800 observações e 95% de confiança, o intervalo é **66,82% a 73,18%** e a exibição com teto é **67% a 74%**.
+
+O quarto card recebe a quantidade de casos x, o tamanho da amostra n e o nível de confiança (95% inicialmente). Informe n inteiro positivo e x inteiro entre 0 e n. As contagens são limitadas pelo maior inteiro exato aceito pela integração entre JavaScript e C, 9.007.199.254.740.991.
+
+O cálculo em C/WebAssembly usa a aproximação pela normal (método Z), com p = x/n, Eₚ = Z × √(p(1 − p)/n) e limites p ± Eₚ. Os valores críticos da aula são **1,645 para 90%**, **1,96 para 95%** e **2,575 para 99%**. O visor acompanha a edição. O resultado apresenta p e os limites em porcentagem e a margem em pontos percentuais, com duas casas decimais. A linha **Limites arredondados para cima** aplica o teto a cada limite percentual bruto.
+
+Quando x ou n − x é menor que 10, a calculadora identifica que a aproximação pode ser ruim. Para 0 < x < n, mostra os limites da fórmula mesmo quando excedem 0% ou 100%. Para x = 0 ou x = n, mostra a proporção observada e explica por que o método não fornece um intervalo útil.
 
 ## Intervalo de Confiança para a Média aprovado em 16/11/2026
 
@@ -15,7 +27,7 @@ O método Z segue os valores **tabelados arredondados do material da aula**: **9
 - O método pressupõe amostra aleatória e observações independentes, condições que os dados resumidos não permitem verificar. O intervalo estima a **média populacional**, não os valores individuais. A interpretação da confiança se refere à cobertura de intervalos em repetições do procedimento.
 - Desvio zero produz margem zero e limites iguais à média, com observação sobre o significado do desvio informado. Limites negativos são preservados. n está limitado ao maior inteiro exato da integração JavaScript/double, 9.007.199.254.740.991; entradas fracionárias não são arredondadas.
 
-`npm test` verifica os quatro exemplos da aula contra referências calculadas independentemente com Python `decimal` (precisão 60), os valores de Z, as condições do método e as falhas numéricas, além dos testes preservados de Pearson e regressão. Não há t de Student, gráficos ou quarta fórmula neste marco.
+`npm test` verifica os quatro exemplos da aula contra referências calculadas independentemente com Python `decimal` (precisão 60), os valores de Z, as condições do método e as falhas numéricas. O intervalo para a média usa apenas o método Z.
 
 Campos vazios ou inválidos conservam os símbolos de suas variáveis na fórmula. As médias da prévia consideram os pares completos. A expressão conserva x̄ e ȳ até todos os pares estarem completos, quando recebe as médias e as somas calculadas em C. Preencha ou remova as linhas pendentes para finalizar. O separador decimal pode ser vírgula ou ponto.
 

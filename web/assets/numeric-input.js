@@ -1,4 +1,4 @@
-// Entrada e edição compartilhadas pelas três calculadoras.
+// Entrada e edição compartilhadas pelas calculadoras.
 export function parseEntry(input) {
   const text = input.value.trim().replaceAll("−", "-");
   if (!text) return { state: "blank", input };
@@ -35,12 +35,43 @@ export function editNumber(input, key) {
 }
 
 // Rejeita também frações que Number arredondaria para um inteiro (ex.: 30,0000000000000001).
-export function isExactSampleSize(entry) {
-  if (entry.state !== "valid" || !Number.isSafeInteger(entry.value) || entry.value <= 0) return false;
+export function isExactCount(entry) {
+  if (entry.state !== "valid" || !Number.isSafeInteger(entry.value) || entry.value < 0) return false;
   const [mantissa, exponent = "0"] = entry.text.replace(",", ".").split(/[eE]/);
   const decimals = mantissa.split(".")[1]?.length ?? 0;
   const fractionalDigits = decimals - Number(exponent);
   const digits = mantissa.replace(/^[+-]/, "").replace(".", "");
   return fractionalDigits <= 0 ||
     (fractionalDigits <= digits.length && /^0*$/.test(digits.slice(-fractionalDigits)));
+}
+
+export function isExactSampleSize(entry) {
+  return isExactCount(entry) && entry.value > 0;
+}
+
+export function attachNumericKeypad(host, prefix, onEdit) {
+  const keypad = document.querySelector("#calculator .keypad").cloneNode(true);
+  for (const element of keypad.querySelectorAll("[id]")) element.id = `${prefix}-${element.id}`;
+  keypad.setAttribute("aria-labelledby", `${prefix}-keypad-title`);
+  host.append(keypad);
+
+  const selectedLabel = keypad.querySelector(`#${prefix}-selected-field`);
+  let selectedInput;
+  const keys = keypad.querySelector(".keys");
+  keys.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" && document.activeElement === selectedInput) event.preventDefault();
+  });
+  keys.addEventListener("click", event => {
+    const key = event.target.closest("[data-key]");
+    if (key && editNumber(selectedInput, key.dataset.key)) onEdit(selectedInput);
+  });
+  return {
+    calculateButton: keypad.querySelector(".calculate-button"),
+    selectField(input) {
+      if (selectedInput) delete selectedInput.dataset.selected;
+      selectedInput = input;
+      selectedInput.dataset.selected = "true";
+      selectedLabel.textContent = input.dataset.fieldName;
+    },
+  };
 }
