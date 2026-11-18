@@ -11,7 +11,7 @@ test("HTML, módulos e WebAssembly usam a mesma versão para evitar arquivos ant
   assert.ok(html.includes(`./assets/style.css?v=${version}`));
 
   const app = readFileSync(new URL("assets/app.js", dist), "utf8");
-  for (const dependency of ["display", "pearson", "regression-display", "confidence-app", "proportion-app", "zscore-app", "numeric-input"]) {
+  for (const dependency of ["display", "pearson", "regression-display", "confidence-app", "proportion-app", "zscore-app", "deviation-app", "numeric-input"]) {
     assert.ok(app.includes(`"./${dependency}.js?v=${version}"`));
     assert.ok(existsSync(new URL(`assets/${dependency}.js`, dist)));
   }

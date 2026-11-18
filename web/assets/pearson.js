@@ -35,6 +35,14 @@ export const ZScoreStatus = Object.freeze({
   NUMERIC_ERROR: 3,
 });
 
+export const DeviationStatus = Object.freeze({
+  OK: 0,
+  TOO_FEW_VALUES: 1,
+  NON_FINITE_INPUT: 2,
+  INVALID_TYPE: 3,
+  NUMERIC_ERROR: 4,
+});
+
 const bytesPerValue = Float64Array.BYTES_PER_ELEMENT;
 let modulePromise;
 
@@ -148,6 +156,28 @@ export async function loadZScore() {
         value => Number.isFinite(value) ? value : null,
       );
       return { status, score, distance, position, classification };
+    } finally {
+      wasm._free(address);
+    }
+  };
+}
+
+export async function loadDeviation() {
+  const wasm = await loadModule();
+  const outputLength = 4;
+  return (values, sample = true, calculate = false) => {
+    const address = wasm._malloc((values.length + outputLength) * bytesPerValue);
+    if (!address) throw new Error("Não há memória suficiente para estes valores.");
+    try {
+      const start = address / bytesPerValue;
+      wasm.HEAPF64.set(values, start);
+      const outputAddress = address + values.length * bytesPerValue;
+      const status = wasm._standard_deviation(address, values.length, Number(sample), Number(calculate), outputAddress);
+      const [count, mean, divisor, deviation] = Array.from(
+        wasm.HEAPF64.subarray(start + values.length, start + values.length + outputLength),
+        value => Number.isFinite(value) ? value : null,
+      );
+      return { status, count, mean, divisor, deviation };
     } finally {
       wasm._free(address);
     }

@@ -84,6 +84,7 @@
       <div class="calculator-heading">
         <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
         <h1 id="calculator-title" tabindex="-1">Correlação de Pearson</h1>
+        <button type="button" class="add-button" data-open-deviation>Calcular desvio padrão</button>
       </div>
 
       <section class="panel display-panel" aria-labelledby="display-title">
@@ -162,6 +163,7 @@
       <div class="calculator-heading">
         <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
         <h1 id="confidence-title" tabindex="-1">Intervalo de Confiança para a Média</h1>
+        <button type="button" class="add-button" data-open-deviation>Calcular desvio padrão</button>
       </div>
 
       <section class="panel display-panel" aria-labelledby="confidence-display-title">
@@ -228,6 +230,7 @@
       <div class="calculator-heading">
         <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
         <h1 id="proportion-title" tabindex="-1">Intervalo de Confiança para Proporção</h1>
+        <button type="button" class="add-button" data-open-deviation>Calcular desvio padrão</button>
       </div>
 
       <section class="panel display-panel" aria-labelledby="proportion-display-title">
@@ -278,6 +281,7 @@
       <div class="calculator-heading">
         <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
         <h1 id="zscore-title" tabindex="-1">Escore Z</h1>
+        <button type="button" class="add-button" data-open-deviation>Calcular desvio padrão</button>
       </div>
 
       <section class="panel display-panel" aria-labelledby="zscore-display-title">
@@ -324,6 +328,40 @@
     </section>
     <noscript><p class="feedback">Ative o JavaScript para usar a calculadora.</p></noscript>
   </main>
+
+  <dialog id="deviation-dialog" aria-labelledby="deviation-title">
+    <div class="panel-header">
+      <h2 id="deviation-title">Calcular desvio padrão</h2>
+      <button type="button" id="deviation-close" class="text-button" aria-label="Fechar auxiliar de desvio padrão">Fechar ×</button>
+    </div>
+    <form novalidate>
+      <div class="entry-layout">
+        <div class="confidence-fields">
+          <div class="confidence-field">
+            <label for="deviation-values">Valores do grupo</label>
+            <textarea id="deviation-values" rows="5" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="10&#10;12&#10;14" data-field-name="Valores do grupo" aria-describedby="deviation-values-help"></textarea>
+            <p id="deviation-values-help" class="entry-hint">Um valor por linha. Use vírgula ou ponto decimal.</p>
+            <div class="deviation-actions">
+              <button type="button" id="deviation-newline" class="add-button">Nova linha</button>
+              <button type="button" id="deviation-clear" class="text-button">Limpar valores</button>
+            </div>
+          </div>
+          <div class="confidence-field">
+            <label for="deviation-type">Tipo de desvio padrão</label>
+            <select id="deviation-type"><option value="1" selected>Amostral (s)</option><option value="0">Populacional (σ)</option></select>
+            <p id="deviation-type-help" class="entry-hint">Amostral divide a soma dos quadrados por n − 1. Populacional divide por n.</p>
+          </div>
+        </div>
+        <div id="deviation-keypad"></div>
+      </div>
+      <div class="deviation-output">
+        <div id="deviation-display"></div>
+        <p id="deviation-feedback" class="feedback" role="status"></p>
+        <div id="deviation-result" class="result confidence-result" aria-live="polite"></div>
+        <button type="button" id="deviation-apply" class="estimate-button" hidden>Usar este desvio padrão</button>
+      </div>
+    </form>
+  </dialog>
 
   <template id="symbolic-formula">
     <math display="block" aria-label="r é a soma dos produtos dos desvios de X e Y, dividida pela raiz do produto das somas dos desvios quadráticos.">

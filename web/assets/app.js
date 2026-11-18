@@ -1,9 +1,10 @@
 import { formatAuxiliary, formatFinal, renderFormula } from "./display.js";
-import { loadConfidence, loadPearson, loadProportion, loadRegression, loadZScore, PearsonStatus } from "./pearson.js";
+import { loadConfidence, loadDeviation, loadPearson, loadProportion, loadRegression, loadZScore, PearsonStatus } from "./pearson.js";
 import { renderPrediction, renderRegression } from "./regression-display.js";
 import { initializeConfidence } from "./confidence-app.js";
 import { initializeProportion } from "./proportion-app.js";
 import { initializeZScore } from "./zscore-app.js";
+import { initializeDeviation } from "./deviation-app.js";
 import { editNumber, parseEntry } from "./numeric-input.js";
 
 const home = document.querySelector("#home");
@@ -38,6 +39,7 @@ const storedRows = { pearson: null, regression: null };
 const confidence = initializeConfidence();
 const proportion = initializeProportion();
 const zscore = initializeZScore();
+const deviation = initializeDeviation();
 
 const formula = document.querySelector("#symbolic-formula");
 for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
@@ -350,6 +352,7 @@ try {
   confidence.setEngine(await loadConfidence());
   proportion.setEngine(await loadProportion());
   zscore.setEngine(await loadZScore());
+  deviation.setEngine(await loadDeviation());
   calculateButton.disabled = false;
   message();
   updatePreview();
@@ -357,6 +360,7 @@ try {
   confidence.setError(moduleError);
   proportion.setError(moduleError);
   zscore.setError(moduleError);
+  deviation.setError(moduleError);
   message(moduleError, true);
   console.error(error);
 }

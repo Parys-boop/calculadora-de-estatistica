@@ -2,6 +2,18 @@
 
 Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples, intervalos de confiança para média e proporção e Escore Z. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados.
 
+## Versão final aprovada
+
+Versão final aprovada pelo usuário e preservada pela tag `v1.0.0-final`. Inclui as cinco calculadoras e o auxiliar de desvio padrão acessível dentro de cada fórmula, com seleção amostral ou populacional e preenchimento do campo correspondente no intervalo para a média e no Escore Z.
+
+Validação concluída com 57 testes automatizados em C/WebAssembly e conferências no navegador da abertura nas cinco fórmulas, teclado, validações, precisão ao aplicar o resultado e uso em tela de celular.
+
+## Auxiliar de desvio padrão
+
+Dentro de cada calculadora, **Calcular desvio padrão** abre um auxiliar com uma lista de valores, um por linha, e o teclado numérico compartilhado. Aceita negativos, vírgula ou ponto decimal. O tipo inicial é amostral, com divisor n − 1 e pelo menos dois valores. O tipo populacional usa n e aceita pelo menos um valor. Média e desvio são calculados em C/WebAssembly com `double`.
+
+O resultado é exibido com quatro casas decimais e é invalidado ao editar a lista ou o tipo. No intervalo para a média e no Escore Z, **Usar este desvio padrão** preenche o campo com o valor completo calculado. No intervalo para a média, também seleciona o tipo amostral ou populacional correspondente.
+
 ## Escore Z aprovado em 17/11/2026
 
 Marco testado e aprovado pelo usuário, preservado pela tag `v0.5.0-escore-z-aprovado`. A entrega inclui o quinto card, o visor dinâmico, o teclado compartilhado e o cálculo e a interpretação em C/WebAssembly. A classificação final para |z| > 2 usa o texto **Valor incomum**.
