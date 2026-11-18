@@ -1,8 +1,9 @@
 import { formatAuxiliary, formatFinal, renderFormula } from "./display.js";
-import { loadConfidence, loadPearson, loadProportion, loadRegression, PearsonStatus } from "./pearson.js";
+import { loadConfidence, loadPearson, loadProportion, loadRegression, loadZScore, PearsonStatus } from "./pearson.js";
 import { renderPrediction, renderRegression } from "./regression-display.js";
 import { initializeConfidence } from "./confidence-app.js";
 import { initializeProportion } from "./proportion-app.js";
+import { initializeZScore } from "./zscore-app.js";
 import { editNumber, parseEntry } from "./numeric-input.js";
 
 const home = document.querySelector("#home");
@@ -36,6 +37,7 @@ let regressionFit;
 const storedRows = { pearson: null, regression: null };
 const confidence = initializeConfidence();
 const proportion = initializeProportion();
+const zscore = initializeZScore();
 
 const formula = document.querySelector("#symbolic-formula");
 for (const container of document.querySelectorAll("[data-symbolic-formula]")) {
@@ -46,6 +48,7 @@ function navigate(focusHeading = false) {
   const showCalculator = ["#pearson", "#regressao"].includes(location.hash);
   const showConfidence = location.hash === "#intervalo";
   const showProportion = location.hash === "#proporcao";
+  const showZScore = location.hash === "#escore-z";
   const nextMode = location.hash === "#regressao" ? "regression" : "pearson";
   if (showCalculator && nextMode !== mode) {
     storedRows[mode] = Array.from(pairTable.rows, row => Array.from(row.querySelectorAll("input"), input => input.value));
@@ -57,13 +60,14 @@ function navigate(focusHeading = false) {
     ? "Regressão Linear Simples" : "Correlação de Pearson";
   document.querySelector(".symbolic").hidden = mode === "regression";
   document.querySelector("#regression-display").hidden = mode !== "regression";
-  home.hidden = showCalculator || showConfidence || showProportion;
+  home.hidden = showCalculator || showConfidence || showProportion || showZScore;
   calculator.hidden = !showCalculator;
   confidence.panel.hidden = !showConfidence;
   proportion.panel.hidden = !showProportion;
+  zscore.panel.hidden = !showZScore;
   if (focusHeading) {
     window.scrollTo(0, 0);
-    const section = showCalculator ? calculator : showConfidence ? confidence.panel : showProportion ? proportion.panel : home;
+    const section = showCalculator ? calculator : showConfidence ? confidence.panel : showProportion ? proportion.panel : showZScore ? zscore.panel : home;
     section.querySelector("h1").focus({ preventScroll: true });
   }
 }
@@ -345,12 +349,14 @@ try {
   regression = await loadRegression();
   confidence.setEngine(await loadConfidence());
   proportion.setEngine(await loadProportion());
+  zscore.setEngine(await loadZScore());
   calculateButton.disabled = false;
   message();
   updatePreview();
 } catch (error) {
   confidence.setError(moduleError);
   proportion.setError(moduleError);
+  zscore.setError(moduleError);
   message(moduleError, true);
   console.error(error);
 }

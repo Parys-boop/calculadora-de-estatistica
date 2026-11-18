@@ -28,6 +28,13 @@ export const ProportionStatus = Object.freeze({
   EXTREME: 4,
 });
 
+export const ZScoreStatus = Object.freeze({
+  OK: 0,
+  NON_FINITE_INPUT: 1,
+  INVALID_DEVIATION: 2,
+  NUMERIC_ERROR: 3,
+});
+
 const bytesPerValue = Float64Array.BYTES_PER_ELEMENT;
 let modulePromise;
 
@@ -121,6 +128,26 @@ export async function loadProportion() {
       const [z, fraction, percent, smallSample, margin, lower, upper, lowerCeiling, upperCeiling] =
         Array.from(wasm.HEAPF64.subarray(start, start + outputLength), value => Number.isFinite(value) ? value : null);
       return { status, z, fraction, percent, smallSample: smallSample === 1, margin, lower, upper, lowerCeiling, upperCeiling };
+    } finally {
+      wasm._free(address);
+    }
+  };
+}
+
+export async function loadZScore() {
+  const wasm = await loadModule();
+  const outputLength = 4;
+  return ({ observed, mean, deviation }, calculate = false) => {
+    const address = wasm._malloc(outputLength * bytesPerValue);
+    if (!address) throw new Error("Não há memória suficiente para calcular o escore.");
+    try {
+      const status = wasm._z_score(observed, mean, deviation, Number(calculate), address);
+      const start = address / bytesPerValue;
+      const [score, distance, position, classification] = Array.from(
+        wasm.HEAPF64.subarray(start, start + outputLength),
+        value => Number.isFinite(value) ? value : null,
+      );
+      return { status, score, distance, position, classification };
     } finally {
       wasm._free(address);
     }

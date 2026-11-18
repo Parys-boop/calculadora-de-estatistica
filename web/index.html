@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a110e">
-  <meta name="description" content="Calcule correlação de Pearson, regressão linear simples e intervalos de confiança para média e proporção, acompanhando as fórmulas.">
+  <meta name="description" content="Calcule correlação de Pearson, regressão linear simples, intervalos de confiança e escore Z, acompanhando as fórmulas.">
   <title>Calculadora de Estatística</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/style.css">
@@ -68,6 +68,14 @@
             </math>
           </div>
           <p id="proportion-description" class="formula-description">Estime um intervalo para a proporção de uma característica na população.</p>
+        </a>
+        <a class="formula-card" href="#escore-z" aria-labelledby="zscore-card-title">
+          <h2 id="zscore-card-title">Escore Z</h2>
+          <div class="card-equation">
+            <math display="block" aria-label="z é igual a x menos mu, dividido por sigma">
+              <mi>z</mi><mo>=</mo><mfrac><mrow><mi>x</mi><mo>−</mo><mi>μ</mi></mrow><mi>σ</mi></mfrac>
+            </math>
+          </div>
         </a>
       </div>
     </section>
@@ -262,6 +270,54 @@
               </div>
             </div>
             <div id="proportion-keypad"></div>
+          </div>
+        </form>
+      </section>
+    </section>
+    <section id="zscore-calculator" aria-labelledby="zscore-title" hidden>
+      <div class="calculator-heading">
+        <a class="back-link" href="#inicio"><span aria-hidden="true">←</span> Voltar ao início</a>
+        <h1 id="zscore-title" tabindex="-1">Escore Z</h1>
+      </div>
+
+      <section class="panel display-panel" aria-labelledby="zscore-display-title">
+        <div class="panel-header">
+          <h2 id="zscore-display-title">Visor da fórmula</h2>
+          <p id="zscore-preview-note">Preencha os valores</p>
+        </div>
+        <div class="display-body">
+          <div id="zscore-display"></div>
+        </div>
+      </section>
+
+      <div class="calculate-area">
+        <p id="zscore-feedback" class="feedback" role="status"></p>
+        <div id="zscore-result" class="result confidence-result" aria-live="polite"></div>
+      </div>
+
+      <section class="panel data-panel" aria-labelledby="zscore-data-title">
+        <div class="panel-header">
+          <h2 id="zscore-data-title">Dados do grupo de referência</h2>
+          <button type="button" class="text-button" id="zscore-clear">Limpar dados</button>
+        </div>
+        <form novalidate>
+          <div class="entry-layout">
+            <div class="confidence-fields">
+              <div class="confidence-field">
+                <label for="zscore-observed">Valor observado (x)</label>
+                <input id="zscore-observed" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 280" data-field-name="Valor observado (x)">
+              </div>
+              <div class="confidence-field">
+                <label for="zscore-mean">Média do grupo de referência (μ)</label>
+                <input id="zscore-mean" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 200" data-field-name="Média do grupo (μ)">
+              </div>
+              <div class="confidence-field">
+                <label for="zscore-deviation">Desvio padrão do grupo (σ)</label>
+                <input id="zscore-deviation" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 40" data-field-name="Desvio padrão do grupo (σ)" aria-describedby="zscore-deviation-help">
+                <p id="zscore-deviation-help" class="entry-hint">Informe um valor maior que zero.</p>
+              </div>
+            </div>
+            <div id="zscore-keypad"></div>
           </div>
         </form>
       </section>

@@ -1,6 +1,16 @@
 # Calculadora de Estatística
 
-Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples e intervalos de confiança para média e proporção. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados.
+Calculadora para a atividade da faculdade, com Correlação de Pearson, Regressão Linear Simples, intervalos de confiança para média e proporção e Escore Z. Use o teclado físico ou o teclado da página. O visor substitui os valores durante a edição, e **= (Calcular)** apresenta os resultados.
+
+## Escore Z aprovado em 17/11/2026
+
+Marco testado e aprovado pelo usuário, preservado pela tag `v0.5.0-escore-z-aprovado`. A entrega inclui o quinto card, o visor dinâmico, o teclado compartilhado e o cálculo e a interpretação em C/WebAssembly. A classificação final para |z| > 2 usa o texto **Valor incomum**.
+
+A validação concluída inclui 52 testes automatizados e conferências no navegador dos exemplos da aula, valores próximos de ±2, campos inválidos, decimais, negativos, edição e acesso às outras quatro calculadoras.
+
+O quinto card recebe o valor observado x, a média μ e o desvio padrão σ do grupo de referência. O desvio deve ser estritamente positivo. Os campos aceitam números finitos, vírgula ou ponto decimal e observações ou médias negativas.
+
+O código C calcula z = (x − μ)/σ e determina a posição em relação à média e a classificação pelo escore completo. Para |z| < 2, exibe **Dentro do padrão**. Para |z| = 2, exibe **No limite do padrão**. Para |z| > 2, exibe **Valor incomum**. O resultado visual tem duas casas decimais. A interpretação de estar acima ou abaixo depende do que está sendo medido. Editar uma entrada invalida o resultado.
 
 ## Intervalo de Confiança para Proporção aprovado em 17/11/2026
 
